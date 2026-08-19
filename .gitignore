@@ -1,0 +1,66 @@
+# Dependencies
+node_modules/
+
+# Frontend and Electron build output
+dist/
+dist-ssr/
+release/
+release-*/
+out/
+*.blockmap
+*.exe
+
+# Local BillMaster databases and SQLite sidecar files
+*.db
+*.db-shm
+*.db-wal
+*.db-journal
+*.sqlite
+*.sqlite3
+*.sqlite-shm
+*.sqlite-wal
+
+# Local imports and user data
+imports/
+*.xlsx
+*.xls
+*.csv
+
+# Environment files and local overrides
+.env
+.env.*
+!.env.example
+*.local
+
+# Test and tooling output
+coverage/
+.vite/
+.vitest/
+*.tsbuildinfo
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Local agent/tool metadata
+.agents/
+.codex/
+
+# Editors and operating systems
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*~

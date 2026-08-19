@@ -1,0 +1,25 @@
+const { contextBridge, ipcRenderer } = require("electron");
+
+contextBridge.exposeInMainWorld("electronAPI", {
+  saveBill: (bill) => ipcRenderer.invoke("bills:save", bill),
+  getBills: () => ipcRenderer.invoke("bills:list"),
+  getBill: (id) => ipcRenderer.invoke("bills:get", id),
+  deleteBill: (id) => ipcRenderer.invoke("bills:delete", id),
+  getItems: (query, limit) => ipcRenderer.invoke("items:list", query, limit),
+  addItems: (names) => ipcRenderer.invoke("items:add", names),
+  deleteItem: (id) => ipcRenderer.invoke("items:delete", id),
+  deleteItems: (ids) => ipcRenderer.invoke("items:delete-many", ids),
+  updateItem: (id, details) => ipcRenderer.invoke("items:update", id, details),
+  updateItems: (entries) => ipcRenderer.invoke("items:update-many", entries),
+  getLedgers: (query) => ipcRenderer.invoke("ledgers:list", query),
+  addLedger: (name) => ipcRenderer.invoke("ledgers:add", name),
+  deleteLedger: (id) => ipcRenderer.invoke("ledgers:delete", id),
+  deleteLedgers: (ids) => ipcRenderer.invoke("ledgers:delete-many", ids),
+  updateLedger: (id, name) => ipcRenderer.invoke("ledgers:update", id, name),
+  saveChallan: (challan) => ipcRenderer.invoke("challans:save", challan),
+  getChallans: () => ipcRenderer.invoke("challans:list"),
+  getChallan: (id) => ipcRenderer.invoke("challans:get", id),
+  deleteChallan: (id) => ipcRenderer.invoke("challans:delete", id),
+  getPrinters: (force = false) => ipcRenderer.invoke("printers:list", force),
+  print: (options) => ipcRenderer.invoke("print", options),
+});
