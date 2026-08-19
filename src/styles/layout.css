@@ -238,6 +238,12 @@
 }
 .loading-state { min-height: 300px; display: grid; place-items: center; color: var(--muted); }
 .detail-document-wrap { padding: 40px; background: #dedce1; border-radius: 20px; display: grid; place-items: center; overflow: auto; }
+.bill-detail-scroll {
+  max-height: calc(100vh - 245px);
+  min-height: 420px;
+  place-items: start center;
+  scrollbar-gutter: stable;
+}
 
 .item-tools { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
 .ledger-add-panel { width: min(620px, 100%); margin-bottom: 24px; }

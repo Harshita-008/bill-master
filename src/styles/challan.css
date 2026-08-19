@@ -1,4 +1,11 @@
-.challan-page { width: min(1050px, 100%); margin: 0 auto; }
+.challan-page { width: min(1540px, 94vw); margin: 0 auto; }
+.challan-editor-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 24px;
+  align-items: start;
+}
+.challan-editor-main { min-width: 0; }
 .challan-editor-card {
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--purple) 24%, var(--border));
@@ -21,6 +28,16 @@
   background: var(--surface-2);
 }
 .challan-to-fields > input { width: 100%; padding: 0 13px; margin-bottom: 9px; }
+.challan-ledger-autocomplete { margin-bottom: 9px; }
+.challan-ledger-autocomplete > input {
+  width: 100%;
+  height: 46px;
+  padding: 0 13px 0 38px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 400;
+}
+.challan-ledger-autocomplete .input-icon { top: 14px; }
 .challan-date-grid { display: grid; grid-template-columns: 1fr 1fr 1.25fr; gap: 8px; }
 .challan-date-grid label { display: flex; flex-direction: column; gap: 7px; }
 .challan-date-grid label span { color: var(--faint); font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .7px; }
@@ -100,7 +117,7 @@
 
 .challan-list-header, .challan-list-row {
   display: grid;
-  grid-template-columns: 100px minmax(180px, 1fr) 150px 150px 30px;
+  grid-template-columns: minmax(180px, 1fr) 150px 150px 30px;
   gap: 16px;
   align-items: center;
 }
@@ -120,8 +137,15 @@
 .challan-list-row > svg { justify-self: end; color: var(--faint); }
 
 @media (max-width: 850px) {
+  .challan-editor-columns { grid-template-columns: 1fr; }
+  .challan-editor-columns > .suggestion-rail { display: none; }
   .challan-form-top { grid-template-columns: 1fr; }
   .challan-list-header { display: none; }
-  .challan-list-row { grid-template-columns: 80px 1fr 24px; }
-  .challan-list-row > :nth-child(3), .challan-list-row > :nth-child(4) { display: none; }
+  .challan-list-row { grid-template-columns: 1fr 24px; }
+  .challan-list-row > :nth-child(2), .challan-list-row > :nth-child(3) { display: none; }
+}
+
+@media (min-width: 851px) and (max-width: 1250px) {
+  .challan-page { width: 96vw; }
+  .challan-editor-columns { grid-template-columns: minmax(0, 1fr) 320px; gap: 16px; }
 }

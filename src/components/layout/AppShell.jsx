@@ -22,7 +22,12 @@ export default function AppShell() {
   const goBack = useCallback(() => {
     const savedChallanEdit = location.pathname.match(/^\/challans\/([^/]+)\/edit$/);
     if (isPrint && location.state?.returnTo) {
-      navigate(location.state.returnTo, { state: { fromPreview: true } });
+      navigate(location.state.returnTo, {
+        state: {
+          fromPreview: true,
+          savedId: location.state.savedId,
+        },
+      });
     } else if (savedChallanEdit) {
       clearEditorDrafts(location.pathname);
       navigate(`/challans/${savedChallanEdit[1]}`, { replace: true });

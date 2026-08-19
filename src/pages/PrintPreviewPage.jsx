@@ -1,14 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Edit3, Maximize2, Printer, RefreshCw, ZoomIn, ZoomOut } from "lucide-react";
+import { BookOpen, Edit3, Maximize2, Printer, RefreshCw, ZoomIn, ZoomOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import BillDocument from "../components/bill/BillDocument";
+import PaginatedBill from "../components/bill/PaginatedBill";
 import { api } from "../services/api";
 import useEnterToPrint from "../hooks/useEnterToPrint";
-import {
-  BILL_PAGE_LAYOUT,
-  createBillRows,
-  paginateBillRows,
-} from "../utils/billPagination";
+import { BILL_PAGE_LAYOUT } from "../utils/billPagination";
+import { getManualDuplexPageRanges, getPhysicalSheetCount } from "../utils/manualDuplex";
 import {
   cachePrinters,
   choosePrinter,
@@ -27,17 +24,17 @@ export default function PrintPreviewPage() {
     }
   }, []);
   const [pageSize, setPageSize] = useState("A6");
-  const [copies, setCopies] = useState(1);
+  const [copies, setCopies] = useState("1");
   const [printers, setPrinters] = useState(readCachedPrinters);
   const [deviceName, setDeviceName] = useState(() => localStorage.getItem(PREFERRED_PRINTER_KEY) || "");
   const [status, setStatus] = useState("");
   const [zoom, setZoom] = useState(100);
+  const [pageCount, setPageCount] = useState(1);
+  const [printMode, setPrintMode] = useState("standard");
+  const [awaitingFlip, setAwaitingFlip] = useState(false);
   const previewRef = useRef(null);
-  const measurementRef = useRef(null);
   const copiesInputRef = useRef(null);
   const printingRef = useRef(false);
-  const allRows = useMemo(() => createBillRows(bill || {}), [bill]);
-  const [pages, setPages] = useState(() => [allRows]);
   const pagePixels = BILL_PAGE_LAYOUT[pageSize];
 
   const fitToView = useCallback(() => {
@@ -47,33 +44,6 @@ export default function PrintPreviewPage() {
     const heightScale = (preview.clientHeight - 64) / pagePixels.height;
     setZoom(Math.max(35, Math.min(140, Math.floor(Math.min(widthScale, heightScale) * 100))));
   }, [pagePixels.height, pagePixels.width]);
-
-  const measurePages = useCallback(() => {
-    const documentElement = measurementRef.current;
-    if (!documentElement) return;
-    const rowElements = [...documentElement.querySelectorAll("[data-bill-row]")];
-    if (allRows.length && rowElements.length !== allRows.length) return;
-
-    const headerHeight = (documentElement.querySelector(".simple-document-header")?.offsetHeight || 0)
-      + pagePixels.headerGap;
-    const tableHeaderHeight = documentElement.querySelector("thead")?.offsetHeight || 0;
-    const footerHeight = documentElement.querySelector("tfoot")?.offsetHeight || 0;
-    const contentHeight = pagePixels.height - (pagePixels.padding * 2);
-    const rowHeights = new Map(rowElements.map((element) => [
-      element.dataset.rowKey,
-      element.offsetHeight,
-    ]));
-    const nextPages = paginateBillRows({
-      rows: allRows,
-      rowHeights,
-      firstPageCapacity: Math.max(1, contentHeight - headerHeight - tableHeaderHeight),
-      continuationPageCapacity: Math.max(1, contentHeight - tableHeaderHeight),
-      footerHeight,
-    });
-    const currentSignature = pages.map((page) => page.map((row) => row.key).join("|")).join("::");
-    const nextSignature = nextPages.map((page) => page.map((row) => row.key).join("|")).join("::");
-    if (currentSignature !== nextSignature) setPages(nextPages);
-  }, [allRows, pagePixels, pages]);
 
   const loadPrinters = async () => {
     const available = cachePrinters(await api.getPrinters(true));
@@ -112,15 +82,16 @@ export default function PrintPreviewPage() {
   }, [fitToView]);
 
   useEffect(() => {
-    const frame = requestAnimationFrame(measurePages);
-    const observer = new ResizeObserver(measurePages);
-    if (measurementRef.current) observer.observe(measurementRef.current);
-    document.fonts?.ready.then(measurePages);
-    return () => {
-      cancelAnimationFrame(frame);
-      observer.disconnect();
+    if (!awaitingFlip) return undefined;
+    const closeOnEscape = (event) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      setAwaitingFlip(false);
+      setStatus("Back sides were not printed.");
     };
-  }, [measurePages]);
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [awaitingFlip]);
 
   useEnterToPrint(handlePrint, copiesInputRef);
 
@@ -129,21 +100,52 @@ export default function PrintPreviewPage() {
   }
 
   async function handlePrint() {
-    if (printingRef.current) return;
+    if (printingRef.current || awaitingFlip) return;
     printingRef.current = true;
+    const printCopies = Math.max(1, Number(copies) || 1);
+    setCopies(String(printCopies));
+    const manualDuplexJob = printMode === "manual-duplex" && pageCount > 1;
     setStatus("Sending to printer…");
-    const result = await api.print({ pageSize, copies, deviceName });
+    if (manualDuplexJob) setStatus("Printing front sides (pages 1, 3, 5...)...");
+    const result = await api.print({
+      pageSize,
+      copies: printCopies,
+      deviceName,
+      pageRanges: manualDuplexJob ? getManualDuplexPageRanges(pageCount, "front") : undefined,
+    });
     setStatus(result.success
       ? result.usedSystemDialog
         ? "Printed using the Windows print settings window."
         : "Print job sent successfully."
       : result.failureReason || "Printing was cancelled.");
+    if (result.success && manualDuplexJob) setStatus("Front sides sent successfully.");
     printingRef.current = false;
+    if (result.success && manualDuplexJob) setAwaitingFlip(true);
+  }
+
+  async function printBackSides() {
+    if (printingRef.current) return;
+    printingRef.current = true;
+    const printCopies = Math.max(1, Number(copies) || 1);
+    setCopies(String(printCopies));
+    setStatus("Printing back sides (pages 2, 4, 6...)...");
+    const result = await api.print({
+      pageSize,
+      copies: printCopies,
+      deviceName,
+      pageRanges: getManualDuplexPageRanges(pageCount, "back"),
+    });
+    setStatus(result.success
+      ? "Front and back printing completed."
+      : result.failureReason || "Back-side printing was cancelled.");
+    printingRef.current = false;
+    if (result.success) setAwaitingFlip(false);
   }
 
   const editPath = bill.id ? `/bills/${bill.id}/edit` : "/bills/new";
-  const pageCount = pages.length;
-  const totalSheets = pageCount * copies;
+  const manualDuplex = printMode === "manual-duplex";
+  const effectiveCopies = Math.max(1, Number(copies) || 1);
+  const totalSheets = getPhysicalSheetCount(pageCount, effectiveCopies, manualDuplex);
 
   return (
     <div className="preview-layout">
@@ -180,8 +182,29 @@ export default function PrintPreviewPage() {
             max="99"
             value={copies}
             onFocus={(event) => event.target.select()}
-            onChange={(event) => setCopies(Math.max(1, Number(event.target.value) || 1))}
+            onChange={(event) => setCopies(event.target.value)}
+            onBlur={() => setCopies((value) => String(Math.max(1, Number(value) || 1)))}
           />
+        </label>
+        <label>Print method
+          <div className="segmented-control print-method-control">
+            <button
+              type="button"
+              className={printMode === "standard" ? "active" : ""}
+              aria-pressed={printMode === "standard"}
+              onClick={() => setPrintMode("standard")}
+            >
+              <Printer size={15} /> Print
+            </button>
+            <button
+              type="button"
+              className={printMode === "manual-duplex" ? "active" : ""}
+              aria-pressed={printMode === "manual-duplex"}
+              onClick={() => setPrintMode("manual-duplex")}
+            >
+              <BookOpen size={15} /> Front &amp; back
+            </button>
+          </div>
         </label>
         <label>Invoice zoom
           <div className="zoom-control">
@@ -203,12 +226,14 @@ export default function PrintPreviewPage() {
         </label>
         <p className="preview-page-count" aria-live="polite">
           <span>{pageCount} {pageCount === 1 ? "page" : "pages"} will print per copy</span>
-          <small>{totalSheets} {totalSheets === 1 ? "sheet" : "sheets"} total for {copies} {copies === 1 ? "copy" : "copies"}</small>
+          <small>{totalSheets} physical {totalSheets === 1 ? "sheet" : "sheets"} for {effectiveCopies} {effectiveCopies === 1 ? "copy" : "copies"}{manualDuplex ? " using both sides" : ""}</small>
         </p>
         {status && <p className="print-status">{status}</p>}
         <div className="print-control-actions">
           <button className="secondary-button" onClick={() => navigate(editPath, { state: { fromPreview: true } })}><Edit3 size={17} /> Edit bill</button>
-          <button className="primary-button" onClick={handlePrint}><Printer size={17} /> Print {copies} {copies === 1 ? "copy" : "copies"}</button>
+          <button className="primary-button" onClick={handlePrint}>
+            <Printer size={17} /> {manualDuplex && pageCount > 1 ? "Start front & back" : `Print ${effectiveCopies} ${effectiveCopies === 1 ? "copy" : "copies"}`}
+          </button>
         </div>
       </aside>
       <div
@@ -218,37 +243,33 @@ export default function PrintPreviewPage() {
         aria-label="Scrollable bill preview"
         tabIndex="0"
       >
-        <div
-          className="preview-paper-frame bill-preview-frame"
-          style={{
-            width: pagePixels.width * (zoom / 100),
-            height: ((pagePixels.height * pageCount) + (24 * Math.max(0, pageCount - 1))) * (zoom / 100),
-          }}
-        >
-          <div className="bill-preview-stack" style={{ "--preview-scale": zoom / 100 }}>
-            {pages.map((pageRows, index) => (
-              <BillDocument
-                key={`${pageSize}-${index}`}
-                bill={bill}
-                pageSize={pageSize}
-                rows={pageRows}
-                showHeader={index === 0}
-                showFooter={index === pageCount - 1}
-                pageNumber={index + 1}
-                pageCount={pageCount}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-      <div className="bill-pagination-measurer no-print" aria-hidden="true">
-        <BillDocument
+        <PaginatedBill
           bill={bill}
           pageSize={pageSize}
-          documentRef={measurementRef}
-          rows={allRows}
+          scale={zoom / 100}
+          onPageCountChange={setPageCount}
         />
       </div>
+      {awaitingFlip && (
+        <div className="manual-duplex-overlay no-print" role="dialog" aria-modal="true" aria-labelledby="manual-duplex-title">
+          <div className="manual-duplex-dialog">
+            <div className="manual-duplex-icon"><BookOpen size={24} /></div>
+            <div>
+              <p className="eyebrow">Front sides sent</p>
+              <h2 id="manual-duplex-title">Flip and reinsert the printed sheets</h2>
+              <p>Wait until pages 1, 3, 5... finish printing. Flip the complete stack and place it back in the printer using the orientation required by your printer.</p>
+              <p className="manual-duplex-warning">Do not continue until the paper is correctly reloaded.</p>
+            </div>
+            <div className="manual-duplex-actions">
+              <button className="secondary-button" onClick={() => {
+                setAwaitingFlip(false);
+                setStatus("Back sides were not printed.");
+              }}>Cancel</button>
+              <button className="primary-button" autoFocus onClick={printBackSides}><Printer size={17} /> Print back sides</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

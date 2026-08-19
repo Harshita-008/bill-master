@@ -1,5 +1,6 @@
 import { forwardRef, useEffect, useRef, useState } from "react";
 import { CalendarDays, Package, UserRound } from "lucide-react";
+import LedgerAutocomplete from "../bill/LedgerAutocomplete";
 import { createEmptyChallan, prepareChallan } from "../../utils/challan";
 import { clearOnEscape, moveBackAtStart } from "../../utils/focus";
 
@@ -34,8 +35,9 @@ const DateCell = forwardRef(function DateCell(
   );
 });
 
-export default function ChallanForm({ initialChallan, onChange, printButtonRef, children }) {
+export default function ChallanForm({ initialChallan, onChange, printButtonRef, suggestionHost, children }) {
   const [draft, setDraft] = useState(initialChallan || createEmptyChallan());
+  const firstToInputRef = useRef(null);
   const toRefs = useRef([]);
   const dateRefs = useRef([]);
   const boxCountRef = useRef(null);
@@ -52,16 +54,28 @@ export default function ChallanForm({ initialChallan, onChange, printButtonRef, 
       <div className="challan-form-top">
         <section className="challan-to-fields">
           <div className="challan-field-title"><UserRound size={18} /><strong>To</strong></div>
-          {["toLine1", "toLine2", "toLine3"].map((field, index) => (
+          <LedgerAutocomplete
+            value={draft.toLine1}
+            onChange={(value) => update("toLine1", value)}
+            inputRef={firstToInputRef}
+            onEnter={() => toRefs.current[1]?.focus()}
+            suggestionHost={suggestionHost}
+            inputId="challanLedgerName"
+            inputLabel="To line 1"
+            autoFocus={!initialChallan?.id}
+            className="challan-ledger-autocomplete"
+          />
+          {["toLine2", "toLine3"].map((field, offset) => {
+            const index = offset + 1;
+            return (
             <input
               key={field}
               ref={(element) => { toRefs.current[index] = element; }}
-              autoFocus={index === 0 && !initialChallan?.id}
               value={draft[field]}
               onChange={(event) => update(field, event.target.value)}
               onKeyDown={(event) => {
                 if (draft[field] && clearOnEscape(event, () => update(field, ""))) return;
-                const previous = index > 0 ? toRefs.current[index - 1] : null;
+                const previous = index === 1 ? firstToInputRef.current : toRefs.current[index - 1];
                 if (moveBackAtStart(event, previous)) return;
                 if (event.key === "Enter") {
                   event.preventDefault();
@@ -71,7 +85,8 @@ export default function ChallanForm({ initialChallan, onChange, printButtonRef, 
               }}
               aria-label={`To line ${index + 1}`}
             />
-          ))}
+            );
+          })}
         </section>
         <section className="challan-date-fields">
           <div className="challan-field-title"><CalendarDays size={18} /><strong>Date</strong></div>

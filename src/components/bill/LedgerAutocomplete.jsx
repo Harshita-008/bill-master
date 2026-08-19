@@ -12,6 +12,10 @@ export default function LedgerAutocomplete({
   inputRef,
   onEnter = () => {},
   suggestionHost,
+  inputId = "ledgerName",
+  inputLabel = "Ledger name",
+  autoFocus = true,
+  className = "",
 }) {
   const [options, setOptions] = useState([]);
   const [open, setOpen] = useState(false);
@@ -118,13 +122,13 @@ export default function LedgerAutocomplete({
   ) : null;
 
   return (
-    <div className="autocomplete ledger-autocomplete">
+    <div className={`autocomplete ledger-autocomplete ${className}`.trim()}>
       <BookOpen className="input-icon" size={18} />
       <input
-        id="ledgerName"
+        id={inputId}
         data-name-context="ledger"
         ref={inputRef}
-        autoFocus
+        autoFocus={autoFocus}
         value={value}
         onFocus={() => {
           if (value.trim() && options.length) setOpen(true);
@@ -138,7 +142,7 @@ export default function LedgerAutocomplete({
         }}
         onKeyDown={handleKeyDown}
         role="combobox"
-        aria-label="Ledger name"
+        aria-label={inputLabel}
         aria-expanded={open && Boolean(value.trim()) && Boolean(options.length)}
         aria-autocomplete="list"
       />

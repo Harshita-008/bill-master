@@ -8,6 +8,7 @@ describe("buildPrintOptions", () => {
       silent: true,
       deviceName: "Office_Printer",
       copies: 2,
+      collate: true,
       usePrinterDefaultPageSize: true,
       margins: { marginType: "none" },
       printBackground: true,
@@ -27,5 +28,18 @@ describe("buildPrintOptions", () => {
     const options = buildPrintOptions({ pageSize: "A6", copies: 1, deviceName: "" });
     expect(options.pageSize).toBe("A6");
     expect(options.silent).toBe(false);
+  });
+
+  it("passes zero-based manual-duplex page ranges to Electron", () => {
+    const options = buildPrintOptions({
+      pageSize: "A6",
+      copies: 2,
+      deviceName: "Office_Printer",
+      pageRanges: [{ from: 0, to: 0 }, { from: 2, to: 2 }],
+    });
+
+    expect(options.copies).toBe(2);
+    expect(options.collate).toBe(true);
+    expect(options.pageRanges).toEqual([{ from: 0, to: 0 }, { from: 2, to: 2 }]);
   });
 });

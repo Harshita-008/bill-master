@@ -22,7 +22,7 @@ export default function ChallanPrintPreviewPage() {
     }
   }, []);
   const [pageSize, setPageSize] = useState("A6");
-  const [copies, setCopies] = useState(2);
+  const [copies, setCopies] = useState("2");
   const [printers, setPrinters] = useState(readCachedPrinters);
   const [deviceName, setDeviceName] = useState(() => localStorage.getItem(PREFERRED_PRINTER_KEY) || "");
   const [status, setStatus] = useState("");
@@ -93,8 +93,10 @@ export default function ChallanPrintPreviewPage() {
   async function handlePrint() {
     if (printingRef.current) return;
     printingRef.current = true;
+    const printCopies = Math.max(1, Number(copies) || 1);
+    setCopies(String(printCopies));
     setStatus("Sending to printer…");
-    const result = await api.print({ pageSize, copies, deviceName });
+    const result = await api.print({ pageSize, copies: printCopies, deviceName });
     setStatus(result.success
       ? result.usedSystemDialog
         ? "Printed using the Windows print settings window."
@@ -104,6 +106,7 @@ export default function ChallanPrintPreviewPage() {
   }
 
   const editPath = challan.id ? `/challans/${challan.id}/edit` : "/challans/new";
+  const effectiveCopies = Math.max(1, Number(copies) || 1);
 
   return (
     <div className="preview-layout">
@@ -142,7 +145,8 @@ export default function ChallanPrintPreviewPage() {
             max="99"
             value={copies}
             onFocus={(event) => event.target.select()}
-            onChange={(event) => setCopies(Math.max(1, Number(event.target.value) || 1))}
+            onChange={(event) => setCopies(event.target.value)}
+            onBlur={() => setCopies((value) => String(Math.max(1, Number(value) || 1)))}
           />
         </label>
         <label>Challan zoom
@@ -159,7 +163,7 @@ export default function ChallanPrintPreviewPage() {
             <Edit3 size={17} /> Edit challan
           </button>
           <button className="primary-button" onClick={handlePrint}>
-            <Printer size={17} /> Print {copies} {copies === 1 ? "copy" : "copies"}
+            <Printer size={17} /> Print {effectiveCopies} {effectiveCopies === 1 ? "copy" : "copies"}
           </button>
         </div>
       </aside>

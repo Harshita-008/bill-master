@@ -38,6 +38,25 @@ describe("ChallanEditorPage", () => {
     expect(document.activeElement).toBe(screen.getByLabelText("To line 1"));
   });
 
+  it("searches saved ledgers from the first To cell in the right-side panel", async () => {
+    localStorage.setItem("billmaster.preview.ledgers", JSON.stringify([
+      { id: 2, name: "Zeta Traders" },
+      { id: 1, name: "Alpha Stationers" },
+    ]));
+    const user = userEvent.setup();
+    renderEditor();
+    const ledgerInput = screen.getByLabelText("To line 1");
+
+    await user.type(ledgerInput, "alp");
+    const suggestionPanel = await screen.findByLabelText("Ledger search");
+    expect(suggestionPanel.closest(".suggestion-rail")).toBeTruthy();
+    expect(screen.getByRole("option", { name: "Alpha Stationers" })).toBeTruthy();
+
+    await user.keyboard("{ArrowDown}{Enter}");
+    expect(ledgerInput.value).toBe("Alpha Stationers");
+    expect(document.activeElement).toBe(screen.getByLabelText("To line 2"));
+  });
+
   it("moves from By to the challan actions and navigates them with arrow keys", async () => {
     const user = userEvent.setup();
     renderEditor();
@@ -79,6 +98,48 @@ describe("ChallanEditorPage", () => {
       const saved = JSON.parse(localStorage.getItem("billmaster.preview.challans"));
       expect(saved).toHaveLength(1);
       expect(saved[0]).toEqual(expect.objectContaining({ toLine1: "Acme Traders", deliveredBy: "Ravi" }));
+    });
+  });
+
+  it("saves a returned print-only draft as a new challan even if the draft carried an old id", async () => {
+    localStorage.setItem("billmaster.preview.challans", JSON.stringify([{
+      id: 3,
+      toLine1: "Existing challan",
+      toLine2: "",
+      toLine3: "",
+      challanDate: "19/08/2026",
+      boxCount: "1",
+      deliveredBy: "Old",
+    }]));
+    sessionStorage.setItem("billmaster.challanEditorDraft", JSON.stringify({
+      id: 3,
+      toLine1: "Print-only challan",
+      toLine2: "",
+      toLine3: "",
+      dateDay: "19",
+      dateMonth: "8",
+      dateYear: "2026",
+      boxCount: "2",
+      deliveredBy: "Ravi",
+    }));
+    const user = userEvent.setup();
+
+    render(
+      <MemoryRouter initialEntries={[{ pathname: "/challans/new", state: { fromPreview: true } }]}>
+        <Routes>
+          <Route path="/challans/new" element={<ChallanEditorPage />} />
+          <Route path="/challan-print" element={<PrintRouteProbe />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Save & print challan" }));
+    expect(await screen.findByText("Challan print route")).toBeTruthy();
+    await waitFor(() => {
+      const saved = JSON.parse(localStorage.getItem("billmaster.preview.challans"));
+      expect(saved).toHaveLength(2);
+      expect(saved[0]).toEqual(expect.objectContaining({ id: 4, toLine1: "Print-only challan" }));
+      expect(saved[1]).toEqual(expect.objectContaining({ id: 3, toLine1: "Existing challan" }));
     });
   });
 });

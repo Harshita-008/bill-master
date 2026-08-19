@@ -5,6 +5,7 @@ import EmptyState from "../components/ui/EmptyState";
 import PageHeader from "../components/ui/PageHeader";
 import useKeyboardListNavigation from "../hooks/useKeyboardListNavigation";
 import { api } from "../services/api";
+import { newestFirst } from "../utils/bills";
 import { formatDate } from "../utils/formatters";
 
 export default function ChallanHistoryPage() {
@@ -19,10 +20,12 @@ export default function ChallanHistoryPage() {
 
   const filtered = useMemo(() => {
     const term = query.trim().toLocaleLowerCase();
-    return challans.filter((challan) => (
-      [challan.toLine1, challan.toLine2, challan.toLine3, challan.deliveredBy]
-        .some((value) => String(value || "").toLocaleLowerCase().includes(term))
-    ));
+    return challans
+      .filter((challan) => (
+        [challan.toLine1, challan.toLine2, challan.toLine3, challan.deliveredBy]
+          .some((value) => String(value || "").toLocaleLowerCase().includes(term))
+      ))
+      .sort(newestFirst);
   }, [challans, query]);
 
   const { rowRefs, moveRowFocus } = useKeyboardListNavigation(filtered.length, loading);
@@ -55,7 +58,7 @@ export default function ChallanHistoryPage() {
       ) : (
         <div className="bills-list">
           <div className="challan-list-header">
-            <span>Challan</span><span>To</span><span>Date</span><span>Saved</span><span />
+            <span>To</span><span>Date</span><span>Saved</span><span />
           </div>
           {filtered.map((challan, index) => (
             <button
@@ -65,7 +68,6 @@ export default function ChallanHistoryPage() {
               onClick={() => navigate(`/challans/${challan.id}`)}
               onKeyDown={(event) => moveRowFocus(event, index)}
             >
-              <strong>#{String(challan.id).padStart(4, "0")}</strong>
               <span>{challan.toLine1 || challan.toLine2 || challan.toLine3 || "—"}</span>
               <span>{challan.challanDate || "—"}</span>
               <span>{formatDate(challan.createdAt)}</span>

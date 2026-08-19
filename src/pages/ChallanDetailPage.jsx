@@ -25,7 +25,7 @@ export default function ChallanDetailPage() {
   };
 
   const removeChallan = async () => {
-    const confirmed = window.confirm(`Delete challan #${String(challan.id).padStart(4, "0")}? This cannot be undone.`);
+    const confirmed = window.confirm("Delete this challan? This cannot be undone.");
     if (!confirmed) return;
     await api.deleteChallan(challan.id);
     navigate("/challans", { replace: true });
@@ -44,7 +44,7 @@ export default function ChallanDetailPage() {
   return (
     <div>
       <PageHeader
-        eyebrow={`Challan #${String(challan.id).padStart(4, "0")}`}
+        eyebrow="Saved challan"
         title={challan.toLine1 || "Saved challan"}
         description="This challan is stored locally on your device."
         actions={(

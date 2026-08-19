@@ -26,6 +26,11 @@ describe("print preview keyboard defaults", () => {
     render(<MemoryRouter><PrintPreviewPage /></MemoryRouter>);
 
     const copiesInput = screen.getByLabelText("Number of copies");
+    await user.click(copiesInput);
+    await user.keyboard("{ArrowRight}{Backspace}");
+    expect(copiesInput.value).toBe("");
+    await user.keyboard("1");
+    copiesInput.blur();
     await user.keyboard("{Backspace}");
     expect(document.activeElement).toBe(copiesInput);
     await user.keyboard("5");
@@ -71,7 +76,7 @@ describe("print preview keyboard defaults", () => {
     const copiesInput = screen.getByLabelText("Number of copies");
     await userEvent.click(copiesInput);
     await userEvent.keyboard("2");
-    expect(await screen.findByText("6 sheets total for 2 copies")).toBeTruthy();
+    expect(await screen.findByText("6 physical sheets for 2 copies")).toBeTruthy();
   });
 
   it("starts challan printing at two copies and prints on the first Enter", async () => {

@@ -10,7 +10,7 @@ user's own computer.
 - Ledger-based bill history with totals
 - Item and ledger masters with keyboard-first search and editing
 - Item rates, units, quantities, notes, charges, and previous-amount adjustments
-- Multi-sheet A6 and A4 bill printing with copy-count support
+- Multi-sheet A6 and A4 bill printing with copy-count and guided front/back support
 - Create, save, edit, browse, and print challans
 - Import item names from every populated worksheet and column in Excel files
 - Light and dark themes

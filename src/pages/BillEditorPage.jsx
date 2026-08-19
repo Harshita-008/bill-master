@@ -56,17 +56,19 @@ export default function BillEditorPage() {
     return "";
   };
 
-  const openPreview = (bill, editorDraft, returnTo = location.pathname) => {
+  const openPreview = (bill, editorDraft, returnTo = location.pathname, savedId) => {
     sessionStorage.setItem("billmaster.printDraft", JSON.stringify(bill));
     sessionStorage.setItem("billmaster.editorDraft", JSON.stringify(editorDraft));
-    navigate("/print", { state: { returnTo } });
+    navigate("/print", { state: { returnTo, savedId } });
   };
 
   const handlePrintOnly = () => {
     const message = validate();
     if (message) return setError(message);
     setError("");
-    openPreview(currentBill, currentDraft);
+    const previewBill = id ? currentBill : { ...currentBill, id: undefined, createdAt: undefined, updatedAt: undefined };
+    const editorDraft = id ? currentDraft : { ...currentDraft, id: undefined, createdAt: undefined, updatedAt: undefined };
+    openPreview(previewBill, editorDraft);
   };
 
   const handleSaveAndPrint = async () => {
@@ -75,12 +77,16 @@ export default function BillEditorPage() {
     setSaving(true);
     setError("");
     try {
-      const existingId = id ? Number(id) : Number(currentDraft?.id) || undefined;
+      const existingId = id
+        ? Number(id)
+        : location.state?.savedId
+          ? Number(location.state.savedId)
+          : undefined;
       const bill = { ...currentBill, id: existingId };
       const result = await api.saveBill(bill);
       const savedBill = { ...bill, id: result.billId, createdAt: initialBill?.createdAt };
       const savedDraft = { ...currentDraft, id: result.billId, createdAt: initialBill?.createdAt };
-      openPreview(savedBill, savedDraft, `/bills/${result.billId}/edit`);
+      openPreview(savedBill, savedDraft, `/bills/${result.billId}/edit`, result.billId);
     } catch (saveError) {
       setError(saveError.message || "The bill could not be saved.");
     } finally {

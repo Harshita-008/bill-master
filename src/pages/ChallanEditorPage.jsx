@@ -31,6 +31,7 @@ export default function ChallanEditorPage() {
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [formVersion, setFormVersion] = useState(0);
+  const [suggestionHost, setSuggestionHost] = useState(null);
 
   useEffect(() => {
     if (!id || initialChallan) return;
@@ -45,20 +46,28 @@ export default function ChallanEditorPage() {
     setDraft(nextDraft);
   }, []);
 
-  const openPreview = (challan, editorDraft, returnTo = location.pathname) => {
+  const openPreview = (challan, editorDraft, returnTo = location.pathname, savedId) => {
     sessionStorage.setItem(PRINT_KEY, JSON.stringify(challan));
     sessionStorage.setItem(DRAFT_KEY, JSON.stringify(editorDraft));
-    navigate("/challan-print", { state: { returnTo } });
+    navigate("/challan-print", { state: { returnTo, savedId } });
   };
 
-  const printOnly = () => openPreview(prepared, draft);
+  const printOnly = () => {
+    const previewChallan = id ? prepared : { ...prepared, id: undefined, createdAt: undefined, updatedAt: undefined };
+    const editorDraft = id ? draft : { ...draft, id: undefined, createdAt: undefined, updatedAt: undefined };
+    openPreview(previewChallan, editorDraft);
+  };
 
   const saveAndPrint = async () => {
     if (!prepared || saving) return;
     setSaving(true);
     setError("");
     try {
-      const existingId = id ? Number(id) : Number(draft?.id) || undefined;
+      const existingId = id
+        ? Number(id)
+        : location.state?.savedId
+          ? Number(location.state.savedId)
+          : undefined;
       const result = await api.saveChallan({ ...prepared, id: existingId });
       const saved = {
         ...prepared,
@@ -67,7 +76,7 @@ export default function ChallanEditorPage() {
       };
       const savedDraft = { ...draft, id: result.challanId, createdAt: initialChallan?.createdAt };
       const returnTo = id ? `/challans/${result.challanId}/edit` : "/challans/new";
-      openPreview(saved, savedDraft, returnTo);
+      openPreview(saved, savedDraft, returnTo, result.challanId);
     } catch (saveError) {
       setError(saveError.message || "The challan could not be saved.");
     } finally {
@@ -91,7 +100,7 @@ export default function ChallanEditorPage() {
   return (
     <div className="challan-page">
       <PageHeader
-        eyebrow={id ? `Editing challan #${String(id).padStart(4, "0")}` : "New challan"}
+        eyebrow={id ? "Editing saved challan" : "New challan"}
         title={id ? "Update challan" : "Create a challan"}
         actions={(
           <button className="primary-button" type="button" onClick={startFresh}>
@@ -100,13 +109,16 @@ export default function ChallanEditorPage() {
         )}
       />
       {error && <div className="alert" role="alert">{error}</div>}
-      {!id || initialChallan ? (
-        <ChallanForm
-          key={formVersion}
-          initialChallan={initialChallan}
-          onChange={handleChange}
-          printButtonRef={printButtonRef}
-        >
+      <div className="challan-editor-columns">
+        <div className="challan-editor-main">
+        {!id || initialChallan ? (
+          <ChallanForm
+            key={formVersion}
+            initialChallan={initialChallan}
+            onChange={handleChange}
+            printButtonRef={printButtonRef}
+            suggestionHost={suggestionHost}
+          >
           <div className="challan-editor-actions">
             <button
               ref={printButtonRef}
@@ -138,8 +150,11 @@ export default function ChallanEditorPage() {
               <Save size={18} /> {saving ? "Saving…" : "Save & print challan"}
             </button>
           </div>
-        </ChallanForm>
-      ) : null}
+          </ChallanForm>
+        ) : null}
+        </div>
+        <aside className="suggestion-rail" ref={setSuggestionHost} />
+      </div>
     </div>
   );
 }

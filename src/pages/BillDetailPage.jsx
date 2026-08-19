@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Edit3, Printer, Trash2 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
-import BillDocument from "../components/bill/BillDocument";
+import PaginatedBill from "../components/bill/PaginatedBill";
 import PageHeader from "../components/ui/PageHeader";
 import { api } from "../services/api";
 
@@ -78,7 +78,14 @@ export default function BillDetailPage() {
           </>
         )}
       />
-      <div className="detail-document-wrap"><BillDocument bill={bill} pageSize="A4" /></div>
+      <div
+        className="detail-document-wrap bill-detail-scroll"
+        role="region"
+        aria-label="Scrollable saved bill"
+        tabIndex="0"
+      >
+        <PaginatedBill bill={bill} pageSize="A4" />
+      </div>
     </div>
   );
 }

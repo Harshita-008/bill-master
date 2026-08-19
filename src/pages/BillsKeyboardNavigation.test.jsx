@@ -53,7 +53,7 @@ describe("saved bill keyboard navigation", () => {
   });
 
   it("highlights the latest bill and opens the arrow-selected bill with Enter", async () => {
-    localStorage.setItem("billmaster.preview.bills", JSON.stringify(bills));
+    localStorage.setItem("billmaster.preview.bills", JSON.stringify([bills[2], bills[0], bills[1]]));
     const user = userEvent.setup();
     render(
       <MemoryRouter initialEntries={["/bills/company/Acme"]}>
@@ -70,6 +70,8 @@ describe("saved bill keyboard navigation", () => {
       return matches;
     });
     await waitFor(() => expect(document.activeElement).toBe(rows[0]));
+    expect(rows[0].textContent).toContain("20.00");
+    expect(rows[1].textContent).toContain("10.00");
 
     await user.keyboard("{ArrowDown}");
     expect(document.activeElement).toBe(rows[1]);

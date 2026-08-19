@@ -5,6 +5,7 @@ export function buildPrintOptions(options) {
     printBackground: true,
     deviceName: options.deviceName || undefined,
     copies: Math.max(1, Number(options.copies) || 1),
+    collate: true,
     landscape: false,
     margins: { marginType: "none" },
   };
@@ -14,6 +15,16 @@ export function buildPrintOptions(options) {
   } else {
     printOptions.usePrinterDefaultPageSize = true;
   }
+
+  const pageRanges = Array.isArray(options.pageRanges)
+    ? options.pageRanges.filter((range) => (
+      Number.isInteger(range?.from)
+      && Number.isInteger(range?.to)
+      && range.from >= 0
+      && range.to >= range.from
+    ))
+    : [];
+  if (pageRanges.length) printOptions.pageRanges = pageRanges;
 
   return printOptions;
 }

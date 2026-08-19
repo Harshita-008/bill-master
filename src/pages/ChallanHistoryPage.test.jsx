@@ -12,8 +12,8 @@ afterEach(() => {
 describe("ChallanHistoryPage keyboard navigation", () => {
   it("focuses the first challan and opens the highlighted row with Enter", async () => {
     localStorage.setItem("billmaster.preview.challans", JSON.stringify([
-      { id: 2, toLine1: "Beta", challanDate: "09/08/2026", createdAt: "2026-08-09T10:00:00Z" },
       { id: 1, toLine1: "Acme", challanDate: "08/08/2026", createdAt: "2026-08-08T10:00:00Z" },
+      { id: 2, toLine1: "Beta", challanDate: "09/08/2026", createdAt: "2026-08-09T10:00:00Z" },
     ]));
     const user = userEvent.setup();
     render(
@@ -31,6 +31,10 @@ describe("ChallanHistoryPage keyboard navigation", () => {
       return matches;
     });
     await waitFor(() => expect(document.activeElement).toBe(rows[0]));
+    expect(rows[0].textContent).toContain("Beta");
+    expect(rows[1].textContent).toContain("Acme");
+    expect(screen.queryByText("Challan")).toBeNull();
+    expect(document.body.textContent).not.toContain("#000");
 
     await user.keyboard("{ArrowDown}");
     expect(document.activeElement).toBe(rows[1]);

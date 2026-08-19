@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { afterEach, describe, expect, it } from "vitest";
@@ -71,5 +71,41 @@ describe("BillEditorPage", () => {
     expect(screen.getByLabelText("Item name 1").value).toBe("");
     expect(sessionStorage.getItem("billmaster.editorDraft")).toBeNull();
     expect(sessionStorage.getItem("billmaster.printDraft")).toBeNull();
+  });
+
+  it("saves a returned print-only draft as a new bill even if the draft carried an old id", async () => {
+    localStorage.setItem("billmaster.preview.bills", JSON.stringify([{
+      id: 4,
+      companyName: "Existing ledger",
+      items: [{ itemName: "Existing item", quantity: 1, rate: 10, per: "pc", amount: 10 }],
+      charges: [],
+      grandTotal: 10,
+    }]));
+    sessionStorage.setItem("billmaster.editorDraft", JSON.stringify({
+      id: 4,
+      companyName: "Print-only ledger",
+      items: [{ itemName: "New item", quantity: 2, rate: 25, per: "pc", amount: 50 }],
+      charges: [{ name: "", amount: "" }],
+      previousAmount: "",
+    }));
+    const user = userEvent.setup();
+
+    render(
+      <MemoryRouter initialEntries={[{ pathname: "/bills/new", state: { fromPreview: true } }]}>
+        <Routes>
+          <Route path="/bills/new" element={<BillEditorPage />} />
+          <Route path="/print" element={<div>Bill print route</div>} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Save & print" }));
+    expect(await screen.findByText("Bill print route")).toBeTruthy();
+    await waitFor(() => {
+      const saved = JSON.parse(localStorage.getItem("billmaster.preview.bills"));
+      expect(saved).toHaveLength(2);
+      expect(saved[0]).toEqual(expect.objectContaining({ id: 5, companyName: "Print-only ledger" }));
+      expect(saved[1]).toEqual(expect.objectContaining({ id: 4, companyName: "Existing ledger" }));
+    });
   });
 });
