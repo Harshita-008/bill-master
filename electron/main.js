@@ -2,6 +2,11 @@ import { app, BrowserWindow, ipcMain } from "electron";
 import path from "path";
 import process from "node:process";
 import { fileURLToPath } from "url";
+import {
+  DATABASE_FILE_NAME,
+  getPersistentUserDataPath,
+  migrateLegacyDatabase,
+} from "./data-storage.js";
 import { buildPrintOptions } from "./print-options.js";
 import {
   addItems,
@@ -18,6 +23,7 @@ import {
   getLedgers,
   getChallan,
   getChallans,
+  closeDatabase,
   initializeDatabase,
   saveBill,
   saveChallan,
@@ -29,6 +35,10 @@ import {
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const isDev = !app.isPackaged;
+const originalUserDataPath = app.getPath("userData");
+if (!isDev) {
+  app.setPath("userData", getPersistentUserDataPath(app.getPath("appData")));
+}
 let printerCache = [];
 let printerLoadPromise = null;
 
@@ -122,7 +132,15 @@ function createWindow() {
 app.whenReady().then(() => {
   const databasePath = isDev
     ? path.join(__dirname, "../billmaster.db")
-    : path.join(app.getPath("userData"), "billmaster.db");
+    : path.join(app.getPath("userData"), DATABASE_FILE_NAME);
+  if (!isDev) {
+    const appDataPath = app.getPath("appData");
+    migrateLegacyDatabase(databasePath, [
+      path.join(originalUserDataPath, DATABASE_FILE_NAME),
+      path.join(appDataPath, "bill-master", DATABASE_FILE_NAME),
+      path.join(appDataPath, "billmaster", DATABASE_FILE_NAME),
+    ]);
+  }
   initializeDatabase(databasePath);
   registerHandlers();
   createWindow();
@@ -130,6 +148,8 @@ app.whenReady().then(() => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
 });
+
+app.on("before-quit", closeDatabase);
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();

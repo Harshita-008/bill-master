@@ -59,8 +59,12 @@ are intentionally excluded from Git.
 
 During development, BillMaster stores its SQLite database as `billmaster.db` in
 the project directory. Packaged installations store the database in Electron's
-per-user application-data directory. Database files, spreadsheet imports, and
-SQLite WAL/SHM files are excluded by `.gitignore` and must not be committed.
+per-user `%APPDATA%\BillMaster` directory. That permanent data directory is
+kept when BillMaster is upgraded, reinstalled, or uninstalled, so installing a
+new version does not remove saved bills, challans, ledgers, or items. Older
+BillMaster data locations are migrated automatically on first launch. Database
+files, spreadsheet imports, and SQLite WAL/SHM files are excluded by
+`.gitignore` and must not be committed.
 
 ## Excel item import
 

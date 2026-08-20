@@ -13,4 +13,14 @@ describe("desktop application icon", () => {
     expect(existsSync("build/icon.ico")).toBe(true);
     expect(existsSync("public/billmaster-icon.png")).toBe(true);
   });
+
+  it("keeps user data when the Windows application is reinstalled or uninstalled", () => {
+    const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
+    const mainSource = readFileSync("electron/main.js", "utf8");
+
+    expect(packageJson.build.appId).toBe("com.billmaster.desktop");
+    expect(packageJson.build.nsis.deleteAppDataOnUninstall).toBe(false);
+    expect(mainSource).toContain('getPersistentUserDataPath(app.getPath("appData"))');
+    expect(mainSource).toContain('app.on("before-quit", closeDatabase)');
+  });
 });

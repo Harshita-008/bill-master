@@ -60,6 +60,9 @@
     "win": {
       "target": "nsis",
       "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "deleteAppDataOnUninstall": false
     }
   }
 }
