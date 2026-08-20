@@ -244,6 +244,37 @@
   place-items: start center;
   scrollbar-gutter: stable;
 }
+.app-shell.bill-detail-route {
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+.bill-detail-main {
+  height: calc(100vh - 72px);
+  height: calc(100dvh - 72px);
+  box-sizing: border-box;
+  padding-top: 18px;
+  padding-bottom: 16px;
+  overflow: hidden;
+}
+.bill-detail-main > div {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.bill-detail-main .page-header {
+  flex: none;
+  margin-bottom: 20px;
+}
+.bill-detail-main .alert { flex: none; }
+.bill-detail-main .bill-detail-scroll {
+  flex: 1;
+  max-height: none;
+  min-height: 0;
+  overscroll-behavior: contain;
+}
 
 .item-tools { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
 .ledger-add-panel { width: min(620px, 100%); margin-bottom: 24px; }

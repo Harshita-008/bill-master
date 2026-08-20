@@ -5,6 +5,7 @@ export const emptyItem = () => ({
   quantity: "",
   per: "",
   note: null,
+  isMarked: false,
   amount: 0,
 });
 
@@ -32,6 +33,7 @@ export function prepareBill(bill) {
       quantity: Math.trunc(Number(item.quantity) || 0),
       per: String(item.per ?? "").trim(),
       note: String(item.note ?? "").trim(),
+      isMarked: Boolean(item.isMarked),
       amount: (Number(item.rate) || 0) * Math.trunc(Number(item.quantity) || 0),
     }));
   const charges = bill.charges
@@ -58,6 +60,7 @@ export function hydrateBill(bill) {
     items: bill.items.map((item) => ({
       ...item,
       note: item.note || null,
+      isMarked: Boolean(item.isMarked),
       key: crypto.randomUUID(),
     })),
     charges: bill.charges.length

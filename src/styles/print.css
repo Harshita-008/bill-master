@@ -112,6 +112,18 @@
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+.item-document-name-line { min-width: 0; display: flex; align-items: flex-start; gap: 1.5mm; }
+.item-document-name-line > span:last-child { min-width: 0; overflow-wrap: anywhere; }
+.saved-item-mark-toggle {
+  width: 8mm; height: 4.5mm; flex: none; margin-top: .15mm; padding: .45mm;
+  border: 1px solid #aaa; border-radius: 999px; display: flex; align-items: center;
+  justify-content: flex-start; background: #eee;
+}
+.saved-item-mark-toggle > span { width: 3.2mm; height: 3.2mm; border-radius: 50%; background: #777; }
+.saved-item-mark-toggle[aria-checked="true"] { border-color: #d92d49; background: #ffe8ec; }
+.saved-item-mark-toggle[aria-checked="true"] > span { transform: translateX(3mm); background: #d92d49; }
+.saved-item-marked,
+.saved-item-marked .item-document-note { color: #c51f3b; }
 
 .page-a6 .simple-document-header { margin-bottom: 4mm; }
 .page-a6 .simple-document-table th,
@@ -132,6 +144,8 @@
 @media print {
   @page { margin: 0; }
   .no-print { display: none !important; }
+  .saved-item-marked,
+  .saved-item-marked .item-document-note { color: #111 !important; }
   html, body, #root, .app-shell, .print-main,
   .preview-layout, .preview-canvas, .preview-paper-frame, .bill-preview-stack {
     position: static !important;

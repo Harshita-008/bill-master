@@ -6,8 +6,7 @@ const css = readFileSync(resolve("src/styles/forms.css"), "utf8");
 
 describe("bill editor layout", () => {
   it("gives item names more room by narrowing quantity and per columns", () => {
-    expect(css).toContain("grid-template-columns: minmax(295px, 1fr) 75px 115px 70px 145px 76px;");
-    expect(css).toContain("grid-template-columns: minmax(295px, 1fr) 75px 115px 70px 145px 40px;");
+    expect(css).toContain("grid-template-columns: minmax(295px, 1fr) 75px 115px 70px 145px 104px;");
   });
 
   it("keeps the right-side search results visible while the bill scrolls", () => {

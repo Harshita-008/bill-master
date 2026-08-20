@@ -13,10 +13,16 @@ export default function PaginatedBill({
   pageSize = "A6",
   scale = 1,
   onPageCountChange,
+  interactiveItemMarks = false,
+  onToggleItemMark,
 }) {
   const measurementRef = useRef(null);
   const allRows = useMemo(() => createBillRows(bill || {}), [bill]);
   const [pages, setPages] = useState(() => [allRows]);
+  const renderedPages = useMemo(() => {
+    const currentRows = new Map(allRows.map((row) => [row.key, row]));
+    return pages.map((page) => page.map((row) => currentRows.get(row.key) || row));
+  }, [allRows, pages]);
   const pagePixels = BILL_PAGE_LAYOUT[pageSize];
 
   const measurePages = useCallback(() => {
@@ -71,7 +77,7 @@ export default function PaginatedBill({
         }}
       >
         <div className="bill-preview-stack" style={{ "--preview-scale": scale }}>
-          {pages.map((pageRows, index) => (
+          {renderedPages.map((pageRows, index) => (
             <BillDocument
               key={`${pageSize}-${index}`}
               bill={bill}
@@ -81,6 +87,8 @@ export default function PaginatedBill({
               showFooter={index === pages.length - 1}
               pageNumber={index + 1}
               pageCount={pages.length}
+              interactiveItemMarks={interactiveItemMarks}
+              onToggleItemMark={onToggleItemMark}
             />
           ))}
         </div>
@@ -91,6 +99,7 @@ export default function PaginatedBill({
           pageSize={pageSize}
           documentRef={measurementRef}
           rows={allRows}
+          interactiveItemMarks={interactiveItemMarks}
         />
       </div>
     </>

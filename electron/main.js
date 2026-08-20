@@ -21,6 +21,7 @@ import {
   initializeDatabase,
   saveBill,
   saveChallan,
+  updateBillItemMark,
   updateItem,
   updateItems,
   updateLedger,
@@ -48,6 +49,9 @@ function registerHandlers() {
   ipcMain.handle("bills:list", () => getBills());
   ipcMain.handle("bills:get", (_, id) => getBill(id));
   ipcMain.handle("bills:delete", (_, id) => deleteBill(id));
+  ipcMain.handle("bills:item-mark", (_, billId, itemId, isMarked) => (
+    updateBillItemMark(billId, itemId, isMarked)
+  ));
   ipcMain.handle("items:list", (_, query, limit) => getItems(query, limit));
   ipcMain.handle("items:add", (_, names) => addItems(names));
   ipcMain.handle("items:delete", (_, id) => deleteItem(id));

@@ -24,7 +24,17 @@ const browserFallback = {
     const bills = read(STORAGE.bills);
     const now = new Date().toISOString();
     const id = bill.id || Math.max(0, ...bills.map((entry) => entry.id)) + 1;
-    const saved = { ...bill, id, createdAt: bill.createdAt || now, updatedAt: now };
+    const saved = {
+      ...bill,
+      id,
+      items: (bill.items || []).map((item) => ({
+        ...item,
+        id: item.id || crypto.randomUUID(),
+        isMarked: Boolean(item.isMarked),
+      })),
+      createdAt: bill.createdAt || now,
+      updatedAt: now,
+    };
     const index = bills.findIndex((entry) => entry.id === id);
     if (index >= 0) bills[index] = saved;
     else bills.unshift(saved);
@@ -42,6 +52,15 @@ const browserFallback = {
     const remaining = bills.filter((bill) => bill.id !== Number(id));
     write(STORAGE.bills, remaining);
     return { deleted: remaining.length !== bills.length };
+  },
+  async updateBillItemMark(billId, itemId, isMarked) {
+    const bills = read(STORAGE.bills);
+    const bill = bills.find((entry) => entry.id === Number(billId));
+    const item = bill?.items?.find((entry) => entry.id === itemId);
+    if (!item) throw new Error("Bill item was not found.");
+    item.isMarked = Boolean(isMarked);
+    write(STORAGE.bills, bills);
+    return { updated: true, isMarked: item.isMarked };
   },
   async getItems(query = "", limit = 100) {
     const matches = read(STORAGE.items)

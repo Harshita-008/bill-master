@@ -19,6 +19,7 @@ export default function AppShell() {
   const navigate = useNavigate();
   const isHome = location.pathname === "/";
   const isPrint = location.pathname === "/print" || location.pathname === "/challan-print";
+  const isBillDetail = /^\/bills\/\d+$/.test(location.pathname);
   const goBack = useCallback(() => {
     const savedChallanEdit = location.pathname.match(/^\/challans\/([^/]+)\/edit$/);
     if (isPrint && location.state?.returnTo) {
@@ -75,7 +76,7 @@ export default function AppShell() {
   }, [location.pathname]);
 
   return (
-    <div className={`app-shell ${isPrint ? "print-route" : ""}`}>
+    <div className={`app-shell ${isPrint ? "print-route" : ""} ${isBillDetail ? "bill-detail-route" : ""}`}>
       <header className="topbar no-print">
         <button className="brand" onClick={() => navigate("/")} aria-label="BillMaster home">
           <img className="brand-mark" src="./billmaster-icon.png" alt="" />
@@ -92,7 +93,7 @@ export default function AppShell() {
           </button>
         </div>
       </header>
-      <main className={isPrint ? "print-main" : "app-main"}>
+      <main className={isPrint ? "print-main" : `app-main ${isBillDetail ? "bill-detail-main" : ""}`}>
         <Outlet />
       </main>
     </div>

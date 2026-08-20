@@ -36,6 +36,13 @@ function renderShell(initialEntries, initialIndex) {
 }
 
 describe("AppShell Escape navigation", () => {
+  it("uses a fixed-height workspace for a saved bill so only its preview scrolls", () => {
+    const { container } = renderShell(["/bills/17"], 0);
+
+    expect(container.querySelector(".app-shell")?.classList.contains("bill-detail-route")).toBe(true);
+    expect(container.querySelector("main")?.classList.contains("bill-detail-main")).toBe(true);
+  });
+
   it("shows the BillMaster app icon in the header", () => {
     renderShell(["/"], 0);
     const brandIcon = screen.getByRole("button", { name: "BillMaster home" }).querySelector("img");

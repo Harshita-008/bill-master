@@ -34,7 +34,7 @@
 .ledger-autocomplete > input:focus { border-color: var(--purple); box-shadow: 0 0 0 3px var(--purple-soft), 0 0 22px var(--glow-soft); }
 .ledger-autocomplete .input-icon { top: 17px; }
 .bill-section { padding: 28px 32px 0; }
-.bill-grid { display: grid; grid-template-columns: minmax(295px, 1fr) 75px 115px 70px 145px 76px; gap: 10px; align-items: center; }
+.bill-grid { display: grid; grid-template-columns: minmax(295px, 1fr) 75px 115px 70px 145px 104px; gap: 10px; align-items: center; }
 .grid-header { padding: 0 3px 8px; color: var(--faint); font-size: 11px; text-transform: uppercase; letter-spacing: .8px; font-weight: 800; }
 .grid-header span:nth-child(2), .grid-header span:nth-child(3), .grid-header span:nth-child(4), .grid-header span:nth-child(5) { text-align: right; }
 .bill-row { margin-bottom: 9px; position: relative; }
@@ -58,6 +58,27 @@
 .delete-button { width: 36px; height: 36px; border-radius: 9px; border: 0; background: transparent; color: var(--faint); display: grid; place-items: center; }
 .delete-button:hover { color: var(--danger); background: color-mix(in srgb, var(--danger) 10%, transparent); }
 .item-row-actions { display: flex; align-items: center; justify-content: flex-end; gap: 2px; }
+.item-mark-toggle {
+  width: 30px; height: 20px; padding: 2px; border: 1px solid var(--border); border-radius: 999px;
+  display: flex; align-items: center; justify-content: flex-start; background: var(--surface-2);
+  transition: border-color .18s, background .18s, box-shadow .18s;
+}
+.item-mark-toggle > span {
+  width: 14px; height: 14px; border-radius: 50%; background: var(--faint);
+  transition: transform .18s, background .18s;
+}
+.item-mark-toggle[aria-checked="true"] {
+  border-color: color-mix(in srgb, var(--danger) 70%, var(--border));
+  background: color-mix(in srgb, var(--danger) 18%, var(--surface-2));
+  box-shadow: 0 0 16px color-mix(in srgb, var(--danger) 25%, transparent);
+}
+.item-mark-toggle[aria-checked="true"] > span { transform: translateX(10px); background: var(--danger); }
+.item-marked .bill-row input,
+.item-marked .amount-cell,
+.item-marked .item-note-field input { color: var(--danger); }
+.item-marked .bill-row input,
+.item-marked .amount-cell { border-color: color-mix(in srgb, var(--danger) 42%, var(--border)); }
+.item-marked .bill-row { background: color-mix(in srgb, var(--danger) 5%, transparent); border-radius: 11px; }
 .note-button {
   width: 36px; height: 36px; border: 0; border-radius: 9px; display: grid; place-items: center;
   color: var(--purple-bright); background: transparent;
@@ -265,7 +286,7 @@
   box-shadow: 0 0 0 3px var(--purple-soft), 0 0 22px var(--glow-soft);
 }
 .grand-total {
-  display: grid; grid-template-columns: minmax(295px, 1fr) 75px 115px 70px 145px 40px; gap: 10px; align-items: center;
+  display: grid; grid-template-columns: minmax(295px, 1fr) 75px 115px 70px 145px 104px; gap: 10px; align-items: center;
   margin-top: 12px; padding: 27px 32px; background: var(--purple-soft); border-top: 1px solid color-mix(in srgb, var(--purple) 25%, transparent);
   box-shadow: inset 0 0 32px var(--glow-soft);
 }

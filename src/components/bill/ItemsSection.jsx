@@ -68,7 +68,7 @@ export default function ItemsSection({
       </div>
       <div className="rows">
         {items.map((item, index) => (
-          <div className="item-row-group" key={item.key}>
+          <div className={`item-row-group${item.isMarked ? " item-marked" : ""}`} key={item.key}>
             <div className="bill-grid bill-row">
               <ItemAutocomplete
                 inputRef={(element) => setCellRef(index, "name", element)}
@@ -147,6 +147,17 @@ export default function ItemsSection({
               />
               <div className="amount-cell">{formatCurrency(item.amount)}</div>
               <div className="item-row-actions">
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={Boolean(item.isMarked)}
+                  className="item-mark-toggle"
+                  onClick={() => onUpdate(item.key, "isMarked", !item.isMarked)}
+                  aria-label={`Toggle red row for item ${index + 1}`}
+                  title={item.isMarked ? "Return row to black" : "Mark row red"}
+                >
+                  <span />
+                </button>
                 <button type="button" className="note-button" onClick={() => openNote(item, index)} aria-label={`Add note to item ${index + 1}`}>
                   <MessageSquarePlus size={17} />
                 </button>

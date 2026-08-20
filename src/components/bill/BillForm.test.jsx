@@ -55,6 +55,26 @@ describe("BillForm", () => {
     expect(screen.queryByLabelText("Note for item 1")).toBeNull();
   });
 
+  it("toggles an item row between black and red and includes the status in bill data", async () => {
+    const user = userEvent.setup();
+    const onBillChange = vi.fn();
+    const { container } = render(React.createElement(BillForm, { onBillChange }));
+    const toggle = screen.getByRole("switch", { name: "Toggle red row for item 1" });
+    await user.type(screen.getByLabelText("Item name 1"), "Drum");
+
+    expect(toggle.getAttribute("aria-checked")).toBe("false");
+    expect(container.querySelector(".item-row-group")?.classList.contains("item-marked")).toBe(false);
+
+    await user.click(toggle);
+    expect(toggle.getAttribute("aria-checked")).toBe("true");
+    expect(container.querySelector(".item-row-group")?.classList.contains("item-marked")).toBe(true);
+    expect(onBillChange.mock.calls.at(-1)[0].items[0].isMarked).toBe(true);
+
+    await user.click(toggle);
+    expect(toggle.getAttribute("aria-checked")).toBe("false");
+    expect(onBillChange.mock.calls.at(-1)[0].items[0].isMarked).toBe(false);
+  });
+
   it("moves from an item note to the next existing empty item-name cell", async () => {
     const user = userEvent.setup();
     render(React.createElement(BillForm, { onBillChange: vi.fn() }));

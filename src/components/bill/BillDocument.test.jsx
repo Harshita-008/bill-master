@@ -1,6 +1,7 @@
 import React from "react";
 import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import userEvent from "@testing-library/user-event";
 import BillDocument from "./BillDocument";
 
 afterEach(cleanup);
@@ -18,6 +19,7 @@ describe("BillDocument", () => {
           quantity: 2,
           per: "pkt",
           note: "Keep upright",
+          isMarked: true,
           rate: 250,
           amount: 500,
         }],
@@ -41,6 +43,33 @@ describe("BillDocument", () => {
     expect(screen.queryByText(/invoice/i)).toBeNull();
     expect(screen.queryByText(/bill no/i)).toBeNull();
     expect(screen.queryByText(/thank you/i)).toBeNull();
+    expect(screen.queryByRole("switch")).toBeNull();
+    expect(container.querySelector(".saved-item-marked")).toBeNull();
+  });
+
+  it("shows an interactive red-row toggle only in saved-bill mode", async () => {
+    const user = userEvent.setup();
+    const onToggleItemMark = vi.fn();
+    const item = {
+      id: 7,
+      itemName: "Marked drum",
+      quantity: 1,
+      per: "pc",
+      rate: 10,
+      amount: 10,
+      isMarked: true,
+    };
+    const { container } = render(React.createElement(BillDocument, {
+      bill: { companyName: "Acme", items: [item], charges: [], grandTotal: 10 },
+      interactiveItemMarks: true,
+      onToggleItemMark,
+    }));
+
+    const toggle = screen.getByRole("switch", { name: "Toggle red row for Marked drum" });
+    expect(toggle.getAttribute("aria-checked")).toBe("true");
+    expect(container.querySelector("tr.saved-item-marked")).toBeTruthy();
+    await user.click(toggle);
+    expect(onToggleItemMark).toHaveBeenCalledWith(item);
   });
 
   it("omits the previous amount row when no adjustment was entered", () => {
