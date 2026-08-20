@@ -50,7 +50,7 @@ export default function ChallanForm({ initialChallan, onChange, printButtonRef, 
   const update = (field, value) => setDraft((current) => ({ ...current, [field]: value }));
 
   return (
-    <div className="challan-editor-card">
+    <div className="challan-editor-card editor-card">
       <div className="challan-form-top">
         <section className="challan-to-fields">
           <div className="challan-field-title"><UserRound size={18} /><strong>To</strong></div>

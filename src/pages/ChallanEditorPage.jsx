@@ -98,7 +98,7 @@ export default function ChallanEditorPage() {
   if (id && initialChallan === null && !error) return <div className="loading-state">Loading challan…</div>;
 
   return (
-    <div className="challan-page">
+    <div className="challan-page editor-workspace">
       <PageHeader
         eyebrow={id ? "Editing saved challan" : "New challan"}
         title={id ? "Update challan" : "Create a challan"}
@@ -109,8 +109,8 @@ export default function ChallanEditorPage() {
         )}
       />
       {error && <div className="alert" role="alert">{error}</div>}
-      <div className="challan-editor-columns">
-        <div className="challan-editor-main">
+      <div className="challan-editor-columns editor-columns">
+        <div className="challan-editor-main editor-page">
         {!id || initialChallan ? (
           <ChallanForm
             key={formVersion}
@@ -119,7 +119,7 @@ export default function ChallanEditorPage() {
             printButtonRef={printButtonRef}
             suggestionHost={suggestionHost}
           >
-          <div className="challan-editor-actions">
+          <div className="challan-editor-actions editor-actions">
             <button
               ref={printButtonRef}
               className="secondary-button"

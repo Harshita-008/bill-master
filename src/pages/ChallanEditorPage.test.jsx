@@ -33,9 +33,13 @@ function renderEditor() {
 
 describe("ChallanEditorPage", () => {
   it("focuses the first To cell when a new challan opens", () => {
-    renderEditor();
+    const { container } = renderEditor();
 
     expect(document.activeElement).toBe(screen.getByLabelText("To line 1"));
+    expect(container.querySelector(".challan-page.editor-workspace")).toBeTruthy();
+    expect(container.querySelector(".challan-editor-columns.editor-columns")).toBeTruthy();
+    expect(container.querySelector(".challan-editor-card.editor-card")).toBeTruthy();
+    expect(container.querySelector(".challan-editor-actions.editor-actions")).toBeTruthy();
   });
 
   it("searches saved ledgers from the first To cell in the right-side panel", async () => {
