@@ -223,6 +223,9 @@
 .delete-ledger-dialog { width: min(460px, calc(100vw - 36px)); }
 .danger-icon { color: var(--danger); background: color-mix(in srgb, var(--danger) 10%, var(--surface)); }
 .delete-dialog-actions { justify-content: flex-end; }
+.exit-dialog { width: min(420px, calc(100vw - 36px)); }
+.exit-dialog .dialog-actions button { min-width: 84px; }
+.exit-dialog .dialog-actions button span { color: inherit; font-size: 15px; }
 
 @media (max-width: 900px) {
   .editor-card { overflow-x: auto; }

@@ -4,7 +4,7 @@ const KEYS = [
   ["Backspace", "Previous"],
   ["Alt+C", "Create master"],
   ["Ctrl+Enter", "Alter master"],
-  ["Esc", "Clear / Back"],
+  ["Esc", "Clear / Exit"],
 ];
 
 export default function VoucherKeys() {

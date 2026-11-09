@@ -2,16 +2,7 @@ import { useCallback, useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, Moon, Sun } from "lucide-react";
 import { useTheme } from "../../context/theme-context";
-
-function clearEditorDrafts(pathname) {
-  if (pathname.startsWith("/bills/")) {
-    sessionStorage.removeItem("billmaster.printDraft");
-    sessionStorage.removeItem("billmaster.editorDraft");
-  } else if (pathname.startsWith("/challans/")) {
-    sessionStorage.removeItem("billmaster.challanPrintDraft");
-    sessionStorage.removeItem("billmaster.challanEditorDraft");
-  }
-}
+import { clearEditorDrafts } from "../../utils/editorDrafts";
 
 export default function AppShell() {
   const { theme, toggleTheme } = useTheme();

@@ -4,6 +4,9 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import BillForm from "../components/bill/BillForm";
 import VoucherHeader from "../components/bill/VoucherHeader";
 import VoucherKeys from "../components/bill/VoucherKeys";
+import ExitDialog from "../components/ui/ExitDialog";
+import useConfirmExit from "../hooks/useConfirmExit";
+import { clearEditorDrafts } from "../utils/editorDrafts";
 import { api } from "../services/api";
 import { hydrateBill } from "../utils/bill";
 import { focusAtStart } from "../utils/focus";
@@ -37,6 +40,11 @@ export default function BillEditorPage() {
   const [saving, setSaving] = useState(false);
   const [formVersion, setFormVersion] = useState(0);
   const [suggestionHost, setSuggestionHost] = useState(null);
+  const exit = useConfirmExit();
+  const leaveToHome = useCallback(() => {
+    clearEditorDrafts(location.pathname);
+    navigate("/", { replace: true });
+  }, [location.pathname, navigate]);
 
   useEffect(() => {
     if (!id || initialBill) return;
@@ -164,6 +172,7 @@ export default function BillEditorPage() {
       </div>
         <aside className="suggestion-rail" ref={setSuggestionHost} />
       </div>
+      {exit.asking && <ExitDialog onYes={leaveToHome} onNo={exit.stay} />}
     </div>
   );
 }

@@ -129,4 +129,34 @@ describe("BillEditorPage", () => {
       expect(saved[1]).toEqual(expect.objectContaining({ id: 4, companyName: "Existing ledger" }));
     });
   });
+
+  it("clears a box on the first Esc and asks before exiting on the next Esc", async () => {
+    const user = userEvent.setup();
+    render(
+      <MemoryRouter initialEntries={["/bills/new"]}>
+        <Routes>
+          <Route path="/" element={<p>Landing page</p>} />
+          <Route path="/bills/new" element={<BillEditorPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    const quantity = screen.getByLabelText("Quantity for item 1");
+    await user.type(quantity, "5");
+    await user.keyboard("{Escape}");
+    expect(quantity.value).toBe("");
+    expect(screen.queryByRole("dialog")).toBeNull();
+
+    await user.keyboard("{Escape}");
+    expect(screen.getByRole("dialog", { name: "Do you want to exit?" })).toBeTruthy();
+
+    await user.keyboard("n");
+    expect(screen.queryByRole("dialog")).toBeNull();
+    await waitFor(() => expect(document.activeElement).toBe(quantity));
+    expect(quantity.value).toBe("");
+
+    await user.keyboard("{Escape}");
+    await user.keyboard("y");
+    expect(await screen.findByText("Landing page")).toBeTruthy();
+  });
 });

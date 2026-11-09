@@ -72,24 +72,24 @@
   font-weight: 700;
 }
 .grid-header span:nth-child(n+2):nth-child(-n+5) { text-align: right; }
-.bill-section .rows { padding-top: 6px; }
+.bill-section .rows { padding-top: 4px; }
 
-/* one line per item, highlighted while typing */
-.bill-row { min-height: 40px; position: relative; }
+/* one tight line per item like the list, highlighted while typing */
+.bill-row { min-height: 20px; position: relative; }
 .item-row-group:focus-within .bill-row,
 .charges-grid.bill-row:focus-within,
 .previous-amount-row:focus-within { background: var(--purple-soft); }
 .bill-row input, .previous-amount-row input {
   width: 100%;
-  height: 34px;
-  padding: 0 8px;
+  height: 20px;
+  padding: 0 6px;
   border: 1px solid transparent;
-  border-radius: 6px;
+  border-radius: 4px;
   outline: 0;
   background: transparent;
   box-shadow: inset 0 -1px 0 var(--border);
   color: var(--text);
-  font-size: 15px;
+  font-size: 14px;
 }
 .bill-row input { scroll-margin-block: 8px; }
 .bill-row input:hover, .previous-amount-row input:hover { border-color: var(--border); }
@@ -99,19 +99,20 @@
   box-shadow: 0 0 0 2px var(--purple-soft);
 }
 .bill-row .input-icon { display: none; }
-.bill-row .autocomplete > input { padding-left: 8px; font-weight: 600; }
+.bill-row .autocomplete > input { padding-left: 6px; font-weight: 600; }
 .bill-row input[aria-label^="Quantity for item"],
 .bill-row input[aria-label^="Rate for item"],
 .bill-row input[aria-label^="Per for item"],
 .bill-row input[aria-label^="Charge amount"],
 .previous-amount-row input { text-align: right; font-variant-numeric: tabular-nums; }
-.amount-cell { padding: 0 8px; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+.amount-cell { padding: 0 6px; font-size: 14px; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
 
 /* row buttons stay quiet until the row is used */
 .item-row-actions { display: flex; align-items: center; justify-content: flex-end; gap: 2px; opacity: .4; transition: opacity .15s; }
 .item-row-group:hover .item-row-actions,
 .item-row-group:focus-within .item-row-actions { opacity: 1; }
-.item-row-actions .delete-button, .charges-grid .delete-button { width: 30px; height: 30px; }
+.item-row-actions .delete-button, .charges-grid .delete-button { width: 24px; height: 20px; border-radius: 6px; }
+.item-row-actions .delete-button svg, .charges-grid .delete-button svg { width: 15px; height: 15px; }
 
 /* sub totals sit under the amount column */
 .total-row { padding-top: 6px; padding-bottom: 6px; }
@@ -132,7 +133,7 @@
 .charges-grid > :nth-child(3) { grid-column: 6; justify-self: end; }
 
 .previous-amount-section { margin-top: 4px; }
-.previous-amount-row { min-height: 40px; }
+.previous-amount-row { min-height: 20px; }
 .previous-amount-row label { grid-column: 1 / 5; text-align: right; color: var(--muted); }
 .previous-amount-row label strong { font-size: 13px; font-weight: 600; }
 .previous-amount-row input { grid-column: 5; }
