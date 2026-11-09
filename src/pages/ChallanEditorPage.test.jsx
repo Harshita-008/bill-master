@@ -52,7 +52,7 @@ describe("ChallanEditorPage", () => {
     const ledgerInput = screen.getByLabelText("To line 1");
 
     await user.type(ledgerInput, "alp");
-    const suggestionPanel = await screen.findByLabelText("Ledger search");
+    const suggestionPanel = await screen.findByLabelText("List of Ledgers");
     expect(suggestionPanel.closest(".suggestion-rail")).toBeTruthy();
     expect(screen.getByRole("option", { name: "Alpha Stationers" })).toBeTruthy();
 

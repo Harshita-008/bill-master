@@ -70,40 +70,42 @@ export default function BillForm({
             inputRef={ledgerInputRef}
             value={form.bill.companyName}
             onChange={form.setCompanyName}
-          onEnter={() => focusAtStart(firstItemInputRef.current)}
-          suggestionHost={suggestionHost}
+            onEnter={() => focusAtStart(firstItemInputRef.current)}
+            suggestionHost={suggestionHost}
           />
         </section>
-        <ItemsSection
-          items={form.bill.items}
-          total={form.preparedBill.itemsTotal}
-          onUpdate={form.updateItem}
-          onAdd={form.addItem}
-          onRemove={form.removeItem}
-          previousInputRef={ledgerInputRef}
-          firstInputRef={firstItemInputRef}
-          firstChargeInputRef={firstChargeInputRef}
-          lastInputRef={lastItemInputRef}
-          suggestionHost={suggestionHost}
-        />
-        <ChargesSection
-          charges={form.bill.charges}
-          total={form.preparedBill.chargesTotal}
-          onUpdate={form.updateCharge}
-          onAdd={form.addCharge}
-          onRemove={form.removeCharge}
-          firstInputRef={firstChargeInputRef}
-          previousInputRef={lastItemInputRef}
-          lastInputRef={lastChargeInputRef}
-          printButtonRef={previousAmountInputRef}
-        />
-        <PreviousAmountField
-          value={form.bill.previousAmount}
-          onChange={form.setPreviousAmount}
-          inputRef={previousAmountInputRef}
-          previousInputRef={lastChargeInputRef}
-          printButtonRef={printButtonRef}
-        />
+        <div className="voucher-body">
+          <ItemsSection
+            items={form.bill.items}
+            total={form.preparedBill.itemsTotal}
+            onUpdate={form.updateItem}
+            onAdd={form.addItem}
+            onRemove={form.removeItem}
+            previousInputRef={ledgerInputRef}
+            firstInputRef={firstItemInputRef}
+            firstChargeInputRef={firstChargeInputRef}
+            lastInputRef={lastItemInputRef}
+            suggestionHost={suggestionHost}
+          />
+          <ChargesSection
+            charges={form.bill.charges}
+            total={form.preparedBill.chargesTotal}
+            onUpdate={form.updateCharge}
+            onAdd={form.addCharge}
+            onRemove={form.removeCharge}
+            firstInputRef={firstChargeInputRef}
+            previousInputRef={lastItemInputRef}
+            lastInputRef={lastChargeInputRef}
+            printButtonRef={previousAmountInputRef}
+          />
+          <PreviousAmountField
+            value={form.bill.previousAmount}
+            onChange={form.setPreviousAmount}
+            inputRef={previousAmountInputRef}
+            previousInputRef={lastChargeInputRef}
+            printButtonRef={printButtonRef}
+          />
+        </div>
         <div className="grand-total">
           <div><span>Amount payable</span><small>Positive amounts add · Negative amounts subtract</small></div>
           <strong>{formatCurrency(form.preparedBill.grandTotal)}</strong>

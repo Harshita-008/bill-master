@@ -9,7 +9,6 @@ export default function BillDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [bill, setBill] = useState(null);
-  const [markError, setMarkError] = useState("");
   const deleteButtonRef = useRef(null);
   const editButtonRef = useRef(null);
   const printButtonRef = useRef(null);
@@ -30,29 +29,6 @@ export default function BillDetailPage() {
     if (!confirmed) return;
     await api.deleteBill(bill.id);
     navigate("/bills", { replace: true });
-  };
-
-  const toggleItemMark = async (item) => {
-    const nextMarked = !item.isMarked;
-    const matchesItem = (candidate) => String(candidate.id) === String(item.id);
-    setMarkError("");
-    setBill((current) => ({
-      ...current,
-      items: current.items.map((candidate) => (
-        matchesItem(candidate) ? { ...candidate, isMarked: nextMarked } : candidate
-      )),
-    }));
-    try {
-      await api.updateBillItemMark(bill.id, item.id, nextMarked);
-    } catch (error) {
-      setBill((current) => ({
-        ...current,
-        items: current.items.map((candidate) => (
-          matchesItem(candidate) ? { ...candidate, isMarked: !nextMarked } : candidate
-        )),
-      }));
-      setMarkError(error.message || "The item row could not be updated.");
-    }
   };
 
   const moveActionFocus = (event, leftTarget, rightTarget) => {
@@ -102,19 +78,13 @@ export default function BillDetailPage() {
           </>
         )}
       />
-      {markError && <div className="alert" role="alert">{markError}</div>}
       <div
         className="detail-document-wrap bill-detail-scroll"
         role="region"
         aria-label="Scrollable saved bill"
         tabIndex="0"
       >
-        <PaginatedBill
-          bill={bill}
-          pageSize="A4"
-          interactiveItemMarks
-          onToggleItemMark={toggleItemMark}
-        />
+        <PaginatedBill bill={bill} pageSize="A4" />
       </div>
     </div>
   );

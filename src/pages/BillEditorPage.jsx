@@ -2,7 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Eye, FilePlus2, Save } from "lucide-react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import BillForm from "../components/bill/BillForm";
-import PageHeader from "../components/ui/PageHeader";
+import VoucherHeader from "../components/bill/VoucherHeader";
+import VoucherKeys from "../components/bill/VoucherKeys";
 import { api } from "../services/api";
 import { hydrateBill } from "../utils/bill";
 import { focusAtStart } from "../utils/focus";
@@ -50,9 +51,6 @@ export default function BillEditorPage() {
     if (!bill?.companyName.trim()) return "Enter a ledger name.";
     if (!bill.items.length) return "Add at least one item.";
     if (bill.items.some((item) => !item.itemName.trim())) return "Every item needs a name.";
-    if (bill.items.some((item) => !Number.isInteger(item.quantity) || item.quantity < 1)) {
-      return "Item quantities must be positive whole numbers.";
-    }
     return "";
   };
 
@@ -108,16 +106,8 @@ export default function BillEditorPage() {
   if (id && initialBill === null && !error) return <div className="loading-state">Loading bill…</div>;
 
   return (
-    <div className="editor-workspace">
-      <PageHeader
-        eyebrow={id ? `Editing bill #${String(id).padStart(4, "0")}` : "New bill"}
-        title={id ? "Update your bill" : "Create a new bill"}
-        actions={(
-          <button className="primary-button" type="button" onClick={startFreshBill}>
-            <FilePlus2 size={18} /> New bill
-          </button>
-        )}
-      />
+    <div className="editor-workspace voucher">
+      <VoucherHeader billId={id} createdAt={initialBill?.createdAt} />
       {error && <div className="alert" role="alert">{error}</div>}
       <div className="editor-columns">
         <div className="editor-page">
@@ -132,6 +122,10 @@ export default function BillEditorPage() {
             suggestionHost={suggestionHost}
           >
           <div className="editor-actions">
+            <VoucherKeys />
+            <button className="secondary-button" type="button" onClick={startFreshBill}>
+              <FilePlus2 size={18} /> New bill
+            </button>
             <button
               ref={printButtonRef}
               className="secondary-button"

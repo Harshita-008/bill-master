@@ -12,7 +12,7 @@ export default function SuggestionPanel({
 }) {
   const isLedger = kind === "ledger";
   const Icon = isLedger ? BookOpen : PackageSearch;
-  const title = isLedger ? "Ledger search" : "Item search";
+  const title = isLedger ? "List of Ledgers" : "List of Items";
   const countLabel = `${options.length} ${options.length === 1 ? "match" : "matches"}`;
 
   return (

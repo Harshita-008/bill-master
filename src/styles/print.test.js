@@ -48,7 +48,6 @@ describe("physical print layout", () => {
     expect(css).toContain("padding-top: .45mm;");
     expect(css).toContain("padding-bottom: .45mm;");
     expect(css).toContain("line-height: 1.12;");
-    expect(css).toContain(".item-document-note {");
   });
 
   it("uses tighter bill columns so more item names remain on one line", () => {

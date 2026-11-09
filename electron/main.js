@@ -1,4 +1,5 @@
 import { app, BrowserWindow, ipcMain } from "electron";
+import { bringToFront, createMainWindow } from "./main-window.js";
 import path from "path";
 import process from "node:process";
 import { fileURLToPath } from "url";
@@ -23,11 +24,11 @@ import {
   getLedgers,
   getChallan,
   getChallans,
+  importItems,
   closeDatabase,
   initializeDatabase,
   saveBill,
   saveChallan,
-  updateBillItemMark,
   updateItem,
   updateItems,
   updateLedger,
@@ -39,6 +40,7 @@ const originalUserDataPath = app.getPath("userData");
 if (!isDev) {
   app.setPath("userData", getPersistentUserDataPath(app.getPath("appData")));
 }
+let mainWindow = null;
 let printerCache = [];
 let printerLoadPromise = null;
 
@@ -59,11 +61,9 @@ function registerHandlers() {
   ipcMain.handle("bills:list", () => getBills());
   ipcMain.handle("bills:get", (_, id) => getBill(id));
   ipcMain.handle("bills:delete", (_, id) => deleteBill(id));
-  ipcMain.handle("bills:item-mark", (_, billId, itemId, isMarked) => (
-    updateBillItemMark(billId, itemId, isMarked)
-  ));
   ipcMain.handle("items:list", (_, query, limit) => getItems(query, limit));
   ipcMain.handle("items:add", (_, names) => addItems(names));
+  ipcMain.handle("items:import", (_, entries) => importItems(entries));
   ipcMain.handle("items:delete", (_, id) => deleteItem(id));
   ipcMain.handle("items:delete-many", (_, ids) => deleteItems(ids));
   ipcMain.handle("items:update", (_, id, details) => updateItem(id, details));
@@ -104,32 +104,33 @@ function registerHandlers() {
 }
 
 function createWindow() {
-  const window = new BrowserWindow({
-    width: 1440,
-    height: 920,
-    minWidth: 1080,
-    minHeight: 720,
-    backgroundColor: "#0d0b12",
-    autoHideMenuBar: true,
+  mainWindow = createMainWindow({
     icon: path.join(__dirname, "../build/icon.ico"),
-    webPreferences: {
-      preload: path.join(__dirname, "preload.cjs"),
-      contextIsolation: true,
-      nodeIntegration: false,
-    },
+    preload: path.join(__dirname, "preload.cjs"),
   });
+  mainWindow.on("closed", () => { mainWindow = null; });
 
   // Warm the Windows print subsystem while the UI loads so the first print is ready sooner.
-  loadPrinters(window.webContents).catch(() => {});
+  loadPrinters(mainWindow.webContents).catch(() => {});
 
   if (isDev) {
-    window.loadURL("http://localhost:5173");
+    mainWindow.loadURL("http://localhost:5173");
   } else {
-    window.loadFile(path.join(__dirname, "../dist/index.html"));
+    mainWindow.loadFile(path.join(__dirname, "../dist/index.html"));
   }
 }
 
-app.whenReady().then(() => {
+// only one BillMaster at a time, a second launch shows the open window
+if (!app.requestSingleInstanceLock()) {
+  app.quit();
+} else {
+  app.on("second-instance", () => {
+    if (mainWindow) bringToFront(mainWindow);
+  });
+  app.whenReady().then(startApp);
+}
+
+function startApp() {
   const databasePath = isDev
     ? path.join(__dirname, "../billmaster.db")
     : path.join(app.getPath("userData"), DATABASE_FILE_NAME);
@@ -139,6 +140,7 @@ app.whenReady().then(() => {
       path.join(originalUserDataPath, DATABASE_FILE_NAME),
       path.join(appDataPath, "bill-master", DATABASE_FILE_NAME),
       path.join(appDataPath, "billmaster", DATABASE_FILE_NAME),
+      path.join(path.dirname(app.getPath("exe")), DATABASE_FILE_NAME),
     ]);
   }
   initializeDatabase(databasePath);
@@ -147,7 +149,7 @@ app.whenReady().then(() => {
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
-});
+}
 
 app.on("before-quit", closeDatabase);
 

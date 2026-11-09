@@ -13,8 +13,6 @@ export default function PaginatedBill({
   pageSize = "A6",
   scale = 1,
   onPageCountChange,
-  interactiveItemMarks = false,
-  onToggleItemMark,
 }) {
   const measurementRef = useRef(null);
   const allRows = useMemo(() => createBillRows(bill || {}), [bill]);
@@ -87,8 +85,6 @@ export default function PaginatedBill({
               showFooter={index === pages.length - 1}
               pageNumber={index + 1}
               pageCount={pages.length}
-              interactiveItemMarks={interactiveItemMarks}
-              onToggleItemMark={onToggleItemMark}
             />
           ))}
         </div>
@@ -99,7 +95,6 @@ export default function PaginatedBill({
           pageSize={pageSize}
           documentRef={measurementRef}
           rows={allRows}
-          interactiveItemMarks={interactiveItemMarks}
         />
       </div>
     </>

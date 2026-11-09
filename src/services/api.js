@@ -1,4 +1,5 @@
 import { matchesItemSearch } from "../../electron/item-search.js";
+import { combineImportedItems, mergeItem } from "../../electron/item-merge.js";
 
 const STORAGE = {
   bills: "billmaster.preview.bills",
@@ -30,7 +31,6 @@ const browserFallback = {
       items: (bill.items || []).map((item) => ({
         ...item,
         id: item.id || crypto.randomUUID(),
-        isMarked: Boolean(item.isMarked),
       })),
       createdAt: bill.createdAt || now,
       updatedAt: now,
@@ -52,15 +52,6 @@ const browserFallback = {
     const remaining = bills.filter((bill) => bill.id !== Number(id));
     write(STORAGE.bills, remaining);
     return { deleted: remaining.length !== bills.length };
-  },
-  async updateBillItemMark(billId, itemId, isMarked) {
-    const bills = read(STORAGE.bills);
-    const bill = bills.find((entry) => entry.id === Number(billId));
-    const item = bill?.items?.find((entry) => entry.id === itemId);
-    if (!item) throw new Error("Bill item was not found.");
-    item.isMarked = Boolean(isMarked);
-    write(STORAGE.bills, bills);
-    return { updated: true, isMarked: item.isMarked };
   },
   async getItems(query = "", limit = 100) {
     const matches = read(STORAGE.items)
@@ -97,6 +88,28 @@ const browserFallback = {
       (entry) => entry.name.toLocaleLowerCase() === firstName.toLocaleLowerCase(),
     );
     return { added, skipped: entries.length - added, item, items: addedItems };
+  },
+  async importItems(entries) {
+    const items = read(STORAGE.items);
+    const result = { added: 0, updated: 0, unchanged: 0 };
+    combineImportedItems(entries).forEach((entry) => {
+      const key = entry.name.toLocaleLowerCase();
+      const current = items.find((item) => item.name.toLocaleLowerCase() === key);
+      if (!current) {
+        items.push({ id: crypto.randomUUID(), name: entry.name, rate: entry.rate ?? 0, per: entry.per });
+        result.added += 1;
+        return;
+      }
+      const changes = mergeItem(current, entry);
+      if (!changes) {
+        result.unchanged += 1;
+        return;
+      }
+      Object.assign(current, changes);
+      result.updated += 1;
+    });
+    write(STORAGE.items, items);
+    return result;
   },
   async deleteItem(id) {
     const items = read(STORAGE.items);

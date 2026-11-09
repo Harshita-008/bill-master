@@ -20,7 +20,7 @@ export function migrateLegacyDatabase(targetDatabasePath, legacyDatabasePaths = 
   ));
   if (!sourceDatabasePath) return null;
 
-  // Copy the main database last so it acts as the completed-migration marker.
+  // copy main db last so a half copy is not used
   for (const suffix of ["-wal", "-shm", ""]) {
     const sourcePath = `${sourceDatabasePath}${suffix}`;
     if (fs.existsSync(sourcePath)) {

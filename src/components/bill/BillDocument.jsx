@@ -1,4 +1,4 @@
-import { formatAmount, formatDateOnly } from "../../utils/formatters";
+import { formatAmount, formatAmountOrBlank, formatDateOnly } from "../../utils/formatters";
 import { createBillRows } from "../../utils/billPagination";
 
 export default function BillDocument({
@@ -11,8 +11,6 @@ export default function BillDocument({
   showFooter = true,
   pageNumber,
   pageCount,
-  interactiveItemMarks = false,
-  onToggleItemMark,
 }) {
   return (
     <article
@@ -49,35 +47,12 @@ export default function BillDocument({
             if (row.kind === "item") {
               const item = row.value;
               return (
-                <tr
-                  key={row.key}
-                  data-bill-row
-                  data-row-key={row.key}
-                  className={interactiveItemMarks && item.isMarked ? "saved-item-marked" : ""}
-                >
-                  <td>{item.quantity}</td>
+                <tr key={row.key} data-bill-row data-row-key={row.key}>
+                  <td>{item.quantity || ""}</td>
                   <td>{item.per}</td>
-                  <td className="item-document-name-cell">
-                    <div className="item-document-name-line">
-                      {interactiveItemMarks && (
-                        <button
-                          type="button"
-                          role="switch"
-                          aria-checked={Boolean(item.isMarked)}
-                          className="saved-item-mark-toggle no-print"
-                          onClick={() => onToggleItemMark?.(item)}
-                          aria-label={`Toggle red row for ${item.itemName}`}
-                          title={item.isMarked ? "Return row to black" : "Mark row red"}
-                        >
-                          <span />
-                        </button>
-                      )}
-                      <span>{item.itemName}</span>
-                    </div>
-                    {item.note && <div className="item-document-note">{item.note}</div>}
-                  </td>
-                  <td>{formatAmount(item.rate)}</td>
-                  <td>{formatAmount(item.amount)}</td>
+                  <td className="item-document-name-cell">{item.itemName}</td>
+                  <td>{formatAmountOrBlank(item.rate)}</td>
+                  <td>{formatAmountOrBlank(item.amount)}</td>
                 </tr>
               );
             }

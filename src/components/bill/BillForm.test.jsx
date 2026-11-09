@@ -37,60 +37,6 @@ describe("BillForm", () => {
     }));
   });
 
-  it("adds, preserves, and removes an optional note for a specific item", async () => {
-    const user = userEvent.setup();
-    const onBillChange = vi.fn();
-    render(React.createElement(BillForm, { onBillChange }));
-
-    await user.type(screen.getByLabelText("Item name 1"), "Fragile drum");
-    expect(screen.queryByLabelText("Note for item 1")).toBeNull();
-
-    await user.click(screen.getByRole("button", { name: "Add note to item 1" }));
-    const note = screen.getByLabelText("Note for item 1");
-    await user.type(note, "Keep upright");
-
-    expect(onBillChange.mock.calls.at(-1)[0].items[0].note).toBe("Keep upright");
-
-    await user.click(screen.getByRole("button", { name: "Remove note from item 1" }));
-    expect(screen.queryByLabelText("Note for item 1")).toBeNull();
-  });
-
-  it("toggles an item row between black and red and includes the status in bill data", async () => {
-    const user = userEvent.setup();
-    const onBillChange = vi.fn();
-    const { container } = render(React.createElement(BillForm, { onBillChange }));
-    const toggle = screen.getByRole("switch", { name: "Toggle red row for item 1" });
-    await user.type(screen.getByLabelText("Item name 1"), "Drum");
-
-    expect(toggle.getAttribute("aria-checked")).toBe("false");
-    expect(container.querySelector(".item-row-group")?.classList.contains("item-marked")).toBe(false);
-
-    await user.click(toggle);
-    expect(toggle.getAttribute("aria-checked")).toBe("true");
-    expect(container.querySelector(".item-row-group")?.classList.contains("item-marked")).toBe(true);
-    expect(onBillChange.mock.calls.at(-1)[0].items[0].isMarked).toBe(true);
-
-    await user.click(toggle);
-    expect(toggle.getAttribute("aria-checked")).toBe("false");
-    expect(onBillChange.mock.calls.at(-1)[0].items[0].isMarked).toBe(false);
-  });
-
-  it("moves from an item note to the next existing empty item-name cell", async () => {
-    const user = userEvent.setup();
-    render(React.createElement(BillForm, { onBillChange: vi.fn() }));
-
-    await user.type(screen.getByLabelText("Item name 1"), "Fragile drum");
-    await user.click(screen.getByLabelText("Per for item 1"));
-    await user.keyboard("{Tab}");
-    expect(screen.getAllByLabelText(/^Item name/)).toHaveLength(2);
-
-    await user.click(screen.getByRole("button", { name: "Add note to item 1" }));
-    await user.type(screen.getByLabelText("Note for item 1"), "Keep upright{Enter}");
-
-    expect(screen.getAllByLabelText(/^Item name/)).toHaveLength(2);
-    expect(document.activeElement).toBe(screen.getByLabelText("Item name 2"));
-  });
-
   it("keeps previous amount optional and accepts a signed decimal adjustment", async () => {
     const user = userEvent.setup();
     render(React.createElement(BillForm, { onBillChange: vi.fn() }));

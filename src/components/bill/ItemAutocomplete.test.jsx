@@ -176,7 +176,7 @@ describe("ItemAutocomplete", () => {
     const input = screen.getByRole("combobox");
     await user.type(input, "drum");
     const rail = within(host);
-    expect(await rail.findByText("Item search")).toBeTruthy();
+    expect(await rail.findByText("List of Items")).toBeTruthy();
     expect(rail.getByText("drum")).toBeTruthy();
     expect(await rail.findByText("3 matches")).toBeTruthy();
 

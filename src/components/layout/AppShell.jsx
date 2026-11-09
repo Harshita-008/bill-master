@@ -93,7 +93,7 @@ export default function AppShell() {
           </button>
         </div>
       </header>
-      <main className={isPrint ? "print-main" : `app-main ${isBillDetail ? "bill-detail-main" : ""}`}>
+      <main className={isPrint ? "print-main" : `app-main ${isBillDetail ? "bill-detail-main" : ""} ${isHome ? "home-main" : ""}`}>
         <Outlet />
       </main>
     </div>

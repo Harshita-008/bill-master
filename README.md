@@ -9,8 +9,7 @@ user's own computer.
 - Create, save, edit, browse, delete, and reprint bills
 - Ledger-based bill history with totals
 - Item and ledger masters with keyboard-first search and editing
-- Item rates, units, quantities, notes, charges, and previous-amount adjustments
-- Per-item red/black status tracking in editors and saved bills, with all printing kept black
+- Item rates, units, quantities, charges, and previous-amount adjustments
 - Multi-sheet A6 and A4 bill printing with copy-count and guided front/back support
 - Create, save, edit, browse, and print challans
 - Import item names from every populated worksheet and column in Excel files
@@ -68,10 +67,12 @@ files, spreadsheet imports, and SQLite WAL/SHM files are excluded by
 
 ## Excel item import
 
-BillMaster scans every worksheet and populated column in `.xlsx`, `.xls`, and
-`.csv` files. Empty cells, recognized header labels, and case-insensitive
-duplicates are ignored. Imported spreadsheet files remain local and are not
-included in the repository.
+BillMaster reads every worksheet in `.xlsx`, `.xls`, and `.csv` files. A sheet
+with a header row such as `Item | Rate | Per` is read column by column: new
+items are added, and a changed rate or per overrides the saved value. Blank
+cells never clear saved values. Sheets without rate or per headers are read as
+plain name lists. Imported spreadsheet files remain local and are not included
+in the repository.
 
 ## Project structure
 

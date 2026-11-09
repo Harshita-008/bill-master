@@ -166,4 +166,28 @@ describe("master pages", () => {
     await user.type(ledgerInput, "New Ledger{Enter}");
     expect(await screen.findByText("New Ledger")).toBeTruthy();
   });
+
+  it("imports a sheet that adds new items and updates changed rates", async () => {
+    localStorage.setItem("billmaster.preview.items", JSON.stringify([
+      { id: 1, name: "Pen", rate: 5, per: "pc" },
+      { id: 2, name: "Pencil", rate: 0, per: "" },
+    ]));
+    const user = userEvent.setup();
+    const { container } = render(React.createElement(ItemMasterPage));
+    await screen.findByText("Pen");
+
+    const csv = "Item,Rate,Per\nPen,7,\nPencil,3,box\nEraser,2,pc\n";
+    const file = new File([csv], "items.csv", { type: "text/csv" });
+    // jsdom has no File.arrayBuffer
+    file.arrayBuffer = async () => new TextEncoder().encode(csv).buffer;
+    await user.upload(container.querySelector('input[type="file"]'), file);
+
+    expect(await screen.findByText("1 new item added, 2 items updated, 0 unchanged.")).toBeTruthy();
+    const saved = JSON.parse(localStorage.getItem("billmaster.preview.items"));
+    expect(saved).toEqual([
+      { id: 1, name: "Pen", rate: 7, per: "pc" },
+      { id: 2, name: "Pencil", rate: 3, per: "box" },
+      expect.objectContaining({ name: "Eraser", rate: 2, per: "pc" }),
+    ]);
+  });
 });

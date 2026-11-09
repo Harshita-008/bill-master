@@ -2,12 +2,12 @@ import fs from "node:fs";
 import path from "node:path";
 import XLSX from "xlsx";
 import {
-  addItems,
   closeDatabase,
   getItemCount,
+  importItems,
   initializeDatabase,
 } from "../electron/database.js";
-import { extractItemNames } from "../src/utils/itemImport.js";
+import { extractItems } from "../src/utils/itemImport.js";
 
 const workbookPath = path.resolve(process.argv[2]);
 const databasePath = path.resolve(process.argv[3] || "billmaster.db");
@@ -27,18 +27,18 @@ const sheetRows = workbook.SheetNames.map((sheetName) => (
     defval: "",
   })
 ));
-const names = extractItemNames(sheetRows);
+const items = extractItems(sheetRows);
 
 try {
   initializeDatabase(databasePath);
   const countBefore = getItemCount();
-  const result = addItems(names);
+  const result = importItems(items);
   const countAfter = getItemCount();
   console.log(JSON.stringify({
     workbookPath,
     databasePath,
     worksheets: workbook.SheetNames.length,
-    extractedNames: names.length,
+    extractedItems: items.length,
     countBefore,
     ...result,
     countAfter,

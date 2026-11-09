@@ -1,0 +1,226 @@
+/* bill editor, tally style voucher screen */
+.voucher {
+  --voucher-columns: minmax(260px, 1fr) 100px 120px 80px 150px 48px;
+  height: calc(100vh - 72px - 32px);
+  min-height: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.app-main:has(.voucher) { width: min(1600px, 96vw); padding: 14px 0; }
+.voucher > .alert { margin: 0; }
+
+/* top strip: type, number, date */
+.voucher-header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 18px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--purple-soft), var(--surface));
+}
+.voucher-title { display: flex; align-items: center; gap: 14px; }
+.voucher-type { padding: 5px 16px; border-radius: 8px; background: var(--purple); color: #fff; font-weight: 800; }
+.voucher-no { color: var(--muted); }
+.voucher-no strong { margin-left: 6px; color: var(--text); font-variant-numeric: tabular-nums; }
+.voucher-date { justify-self: end; display: flex; flex-direction: column; align-items: flex-end; line-height: 1.3; }
+.voucher-date small { color: var(--muted); }
+
+/* voucher and list fill the window */
+.voucher .editor-columns { flex: 1; min-height: 0; grid-template-columns: minmax(0, 1fr); align-items: stretch; }
+.voucher .editor-page { min-height: 0; }
+.voucher .editor-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+}
+
+/* party row: Ledger name : ____ */
+.company-field { flex: none; display: flex; align-items: center; padding: 14px 22px; border-bottom: 1px solid var(--border); }
+.company-field label { width: 130px; flex: none; display: flex; color: var(--muted); font-weight: 600; }
+.company-field label::after { content: ":"; margin-left: auto; padding-right: 14px; }
+.voucher .ledger-autocomplete { width: min(480px, 100%); }
+.voucher .ledger-autocomplete > input {
+  height: 40px;
+  padding-left: 8px;
+  border-radius: 8px;
+  border-color: transparent;
+  border-bottom-color: var(--border);
+  background: transparent;
+  font-size: 17px;
+}
+.voucher .ledger-autocomplete .input-icon { display: none; }
+
+/* only the item rows scroll, charges stay fixed below like tally */
+.voucher-body { flex: 1; min-height: 0; display: flex; flex-direction: column; padding-bottom: 12px; }
+.items-section { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.items-section .rows { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: thin; }
+.charges-section, .previous-amount-section { flex: none; }
+.bill-grid { display: grid; grid-template-columns: var(--voucher-columns); gap: 8px; align-items: center; padding: 0 22px; }
+.grid-header {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+.grid-header span:nth-child(n+2):nth-child(-n+5) { text-align: right; }
+.bill-section .rows { padding-top: 6px; }
+
+/* one line per item, highlighted while typing */
+.bill-row { min-height: 40px; position: relative; }
+.item-row-group:focus-within .bill-row,
+.charges-grid.bill-row:focus-within,
+.previous-amount-row:focus-within { background: var(--purple-soft); }
+.bill-row input, .previous-amount-row input {
+  width: 100%;
+  height: 34px;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  outline: 0;
+  background: transparent;
+  box-shadow: inset 0 -1px 0 var(--border);
+  color: var(--text);
+  font-size: 15px;
+}
+.bill-row input { scroll-margin-block: 8px; }
+.bill-row input:hover, .previous-amount-row input:hover { border-color: var(--border); }
+.bill-row input:focus, .previous-amount-row input:focus {
+  border-color: var(--purple);
+  background: var(--surface);
+  box-shadow: 0 0 0 2px var(--purple-soft);
+}
+.bill-row .input-icon { display: none; }
+.bill-row .autocomplete > input { padding-left: 8px; font-weight: 600; }
+.bill-row input[aria-label^="Quantity for item"],
+.bill-row input[aria-label^="Rate for item"],
+.bill-row input[aria-label^="Per for item"],
+.bill-row input[aria-label^="Charge amount"],
+.previous-amount-row input { text-align: right; font-variant-numeric: tabular-nums; }
+.amount-cell { padding: 0 8px; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* row buttons stay quiet until the row is used */
+.item-row-actions { display: flex; align-items: center; justify-content: flex-end; gap: 2px; opacity: .4; transition: opacity .15s; }
+.item-row-group:hover .item-row-actions,
+.item-row-group:focus-within .item-row-actions { opacity: 1; }
+.item-row-actions .delete-button, .charges-grid .delete-button { width: 30px; height: 30px; }
+
+/* sub totals sit under the amount column */
+.total-row { padding-top: 6px; padding-bottom: 6px; }
+.total-row > :first-child { grid-column: 1 / 5; text-align: right; color: var(--muted); font-size: 13px; font-weight: 600; }
+.total-row > :nth-child(2) {
+  grid-column: 5; padding: 6px 8px 0; border-top: 1px solid var(--border);
+  text-align: right; font-variant-numeric: tabular-nums;
+}
+
+/* charges, like tax lines below the items */
+.charges-section { margin-top: 10px; }
+.charges-section .grid-header {
+  position: static; padding-top: 4px; padding-bottom: 4px; border-bottom: 0; background: none;
+  color: var(--faint); font-size: 11px; text-transform: uppercase; letter-spacing: .8px;
+}
+.charges-grid > :first-child { grid-column: 1 / 5; }
+.charges-grid > :nth-child(2) { grid-column: 5; }
+.charges-grid > :nth-child(3) { grid-column: 6; justify-self: end; }
+
+.previous-amount-section { margin-top: 4px; }
+.previous-amount-row { min-height: 40px; }
+.previous-amount-row label { grid-column: 1 / 5; text-align: right; color: var(--muted); }
+.previous-amount-row label strong { font-size: 13px; font-weight: 600; }
+.previous-amount-row input { grid-column: 5; }
+
+/* grand total pinned at the bottom */
+.grand-total {
+  flex: none;
+  display: grid;
+  grid-template-columns: var(--voucher-columns);
+  gap: 8px;
+  align-items: center;
+  padding: 12px 22px;
+  border-top: 3px double color-mix(in srgb, var(--purple) 45%, var(--border));
+  background: color-mix(in srgb, var(--purple-soft) 60%, var(--surface));
+}
+.grand-total div { grid-column: 1 / 5; display: flex; flex-direction: column; text-align: right; }
+.grand-total span { font-weight: 800; }
+.grand-total small { color: var(--muted); font-size: 12px; }
+.grand-total > strong { grid-column: 5; padding: 0 8px; text-align: right; color: var(--purple-bright); font-size: 20px; font-variant-numeric: tabular-nums; }
+
+/* bottom bar: keys on the left, buttons on the right */
+.voucher .editor-actions {
+  flex: none;
+  padding: 10px 14px;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface-2);
+}
+.voucher .editor-actions button { min-height: 38px; flex: none; white-space: nowrap; }
+.voucher-keys { margin: 0 auto 0 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 6px 16px; color: var(--muted); font-size: 12px; }
+.voucher-keys kbd {
+  margin-right: 5px; padding: 2px 6px; border: 1px solid var(--border); border-radius: 5px;
+  background: var(--surface); box-shadow: 0 2px 0 var(--border); color: var(--text); font: inherit; font-weight: 700;
+}
+
+/* list panel on the right, like tally's list of ledgers */
+/* list floats over the right side, gone when nothing to show */
+.voucher .suggestion-rail {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  width: 380px;
+  height: auto;
+}
+.voucher .suggestion-rail:empty { display: none; }
+.voucher .suggestion-panel {
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: -12px 0 40px rgba(0, 0, 0, .25), var(--shadow);
+}
+.voucher .suggestion-panel-heading {
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: 6px 12px;
+  border-bottom: 0;
+  background: var(--purple);
+  color: #fff;
+}
+.voucher .suggestion-panel-icon,
+.voucher .suggestion-panel-heading strong,
+.voucher .suggestion-option-index,
+.voucher .suggestion-panel-footer { display: none; }
+.voucher .suggestion-panel-heading > div > span { color: #fff; font-size: 14px; font-weight: 600; letter-spacing: 0; text-transform: none; }
+.voucher .suggestion-count { padding: 0; background: none; color: rgba(255,255,255,.8); font-size: 11px; }
+
+/* one tight line per name, like tally */
+.voucher .suggestion-list { padding: 4px 0; }
+.voucher .suggestion-list button {
+  display: block;
+  min-height: 0;
+  padding: 1px 12px;
+  border: 0;
+  border-radius: 0;
+  font-size: 14px;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transform: none;
+}
+.voucher .suggestion-list button > span:last-child { font-weight: 500; }
+.voucher .suggestion-list button:hover { background: var(--purple-soft); }
+.voucher .suggestion-list button.active { background: var(--purple); color: #fff; box-shadow: none; transform: none; }
+
+/* smaller windows get tighter columns */
+@media (max-width: 1250px) {
+  .voucher { --voucher-columns: minmax(180px, 1fr) 70px 90px 60px 120px 44px; }
+  .voucher .suggestion-rail { width: 320px; }
+  .voucher-keys { font-size: 11px; }
+}

@@ -20,6 +20,19 @@ function LedgerHarness() {
 }
 
 describe("LedgerAutocomplete", () => {
+  it("does not open the list for a saved ledger name until the field is focused", async () => {
+    localStorage.setItem("billmaster.preview.ledgers", JSON.stringify([{ id: 1, name: "Alpha" }]));
+    render(React.createElement(LedgerAutocomplete, {
+      value: "Alpha",
+      onChange: vi.fn(),
+      inputRef: { current: null },
+      autoFocus: false,
+    }));
+
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    expect(screen.queryByRole("listbox")).toBeNull();
+  });
+
   it("stays closed when empty, then shows sorted case-insensitive matches", async () => {
     localStorage.setItem("billmaster.preview.ledgers", JSON.stringify([
       { id: 2, name: "Zeta" },

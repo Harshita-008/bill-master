@@ -5,11 +5,9 @@ contextBridge.exposeInMainWorld("electronAPI", {
   getBills: () => ipcRenderer.invoke("bills:list"),
   getBill: (id) => ipcRenderer.invoke("bills:get", id),
   deleteBill: (id) => ipcRenderer.invoke("bills:delete", id),
-  updateBillItemMark: (billId, itemId, isMarked) => (
-    ipcRenderer.invoke("bills:item-mark", billId, itemId, isMarked)
-  ),
   getItems: (query, limit) => ipcRenderer.invoke("items:list", query, limit),
   addItems: (names) => ipcRenderer.invoke("items:add", names),
+  importItems: (entries) => ipcRenderer.invoke("items:import", entries),
   deleteItem: (id) => ipcRenderer.invoke("items:delete", id),
   deleteItems: (ids) => ipcRenderer.invoke("items:delete-many", ids),
   updateItem: (id, details) => ipcRenderer.invoke("items:update", id, details),

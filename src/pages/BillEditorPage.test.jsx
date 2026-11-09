@@ -47,6 +47,27 @@ describe("BillEditorPage", () => {
     expect(screen.getAllByLabelText(/^Item name/)).toHaveLength(2);
   });
 
+  it("saves and prints a bill with blank quantity and rate", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <MemoryRouter initialEntries={["/bills/new"]}>
+        <Routes>
+          <Route path="/bills/new" element={<BillEditorPage />} />
+          <Route path="/print" element={<p>Print page</p>} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    await user.type(screen.getByLabelText("Ledger name"), "Blank Ledger");
+    await user.type(screen.getByLabelText("Item name 1"), "Pen");
+    await user.click(screen.getByRole("button", { name: /Save & print/ }));
+
+    expect(await screen.findByText("Print page")).toBeTruthy();
+    const [saved] = JSON.parse(localStorage.getItem("billmaster.preview.bills"));
+    expect(saved.items[0]).toMatchObject({ itemName: "Pen", quantity: 0, rate: 0, amount: 0 });
+  });
+
   it("starts a completely fresh bill from the editor header action", async () => {
     sessionStorage.setItem("billmaster.editorDraft", JSON.stringify({
       companyName: "Existing Draft",

@@ -16,7 +16,6 @@ vi.mock("../services/api", () => ({
       grandTotal: 0,
     })),
     deleteBill: vi.fn(async () => ({ deleted: true })),
-    updateBillItemMark: vi.fn(async (_, __, isMarked) => ({ updated: true, isMarked })),
   },
 }));
 
@@ -87,42 +86,5 @@ describe("BillDetailPage keyboard actions", () => {
     await waitFor(() => {
       expect(screen.getAllByRole("article", { name: /Bill page/ })).toHaveLength(3);
     });
-  });
-
-  it("persists each saved item row toggle and switches it back to black", async () => {
-    api.getBill.mockResolvedValueOnce({
-      id: 5,
-      companyName: "NDC",
-      createdAt: "2026-08-10T10:00:00Z",
-      items: [{
-        id: 12,
-        itemName: "Drum",
-        quantity: 1,
-        per: "pc",
-        rate: 10,
-        amount: 10,
-        isMarked: false,
-      }],
-      charges: [],
-      grandTotal: 10,
-    });
-    const user = userEvent.setup();
-
-    render(
-      <MemoryRouter initialEntries={["/bills/5"]}>
-        <Routes><Route path="/bills/5" element={<BillDetailPage />} /></Routes>
-      </MemoryRouter>,
-    );
-
-    const toggle = await screen.findByRole("switch", { name: "Toggle red row for Drum" });
-    await user.click(toggle);
-    expect(toggle.getAttribute("aria-checked")).toBe("true");
-    expect(toggle.closest("tr")?.classList.contains("saved-item-marked")).toBe(true);
-    expect(api.updateBillItemMark).toHaveBeenLastCalledWith(5, 12, true);
-
-    await user.click(toggle);
-    expect(toggle.getAttribute("aria-checked")).toBe("false");
-    expect(toggle.closest("tr")?.classList.contains("saved-item-marked")).toBe(false);
-    expect(api.updateBillItemMark).toHaveBeenLastCalledWith(5, 12, false);
   });
 });

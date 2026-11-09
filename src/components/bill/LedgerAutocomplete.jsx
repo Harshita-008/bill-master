@@ -26,6 +26,8 @@ export default function LedgerAutocomplete({
   const optionRefs = useRef([]);
   const suppressNextSearch = useRef(false);
   const blurTimer = useRef(null);
+  // only show the list while the user is in this field
+  const focused = useRef(false);
 
   useEffect(() => () => clearTimeout(blurTimer.current), []);
 
@@ -41,7 +43,7 @@ export default function LedgerAutocomplete({
       if (active) {
         setOptions(results);
         setActiveIndex(null);
-        setOpen(true);
+        setOpen(focused.current);
       }
     }, 100);
     return () => {
@@ -131,10 +133,15 @@ export default function LedgerAutocomplete({
         autoFocus={autoFocus}
         value={value}
         onFocus={() => {
+          focused.current = true;
           if (value.trim() && options.length) setOpen(true);
         }}
-        onBlur={() => { blurTimer.current = setTimeout(() => setOpen(false), 120); }}
+        onBlur={() => {
+          focused.current = false;
+          blurTimer.current = setTimeout(() => setOpen(false), 120);
+        }}
         onChange={(event) => {
+          focused.current = true;
           onChange(event.target.value);
           setError("");
           setActiveIndex(null);

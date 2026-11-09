@@ -8,7 +8,9 @@ import PageHeader from "../components/ui/PageHeader";
 import SelectionToolbar from "../components/ui/SelectionToolbar";
 import useSelection from "../hooks/useSelection";
 import { api } from "../services/api";
-import { extractItemNames } from "../utils/itemImport";
+import { extractItems } from "../utils/itemImport";
+import { importMessage } from "../utils/importMessage";
+import { readWorkbookRows } from "../utils/readWorkbook";
 
 export default function ItemMasterPage() {
   const [items, setItems] = useState([]);
@@ -70,19 +72,12 @@ export default function ItemMasterPage() {
     event.target.value = "";
     if (!file) return;
     try {
-      const XLSX = await import("xlsx");
-      const workbook = XLSX.read(await file.arrayBuffer(), { type: "array" });
-      const sheetRows = workbook.SheetNames.map((sheetName) => (
-        XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {
-          header: 1,
-          raw: false,
-          defval: "",
-        })
-      ));
-      const names = extractItemNames(sheetRows);
-      await addNames(names);
+      const items = extractItems(await readWorkbookRows(file));
+      const result = await api.importItems(items);
+      setMessage(importMessage(result));
+      await loadItems();
     } catch {
-      setMessage("That sheet could not be read. Use an XLSX, XLS, or CSV file with item names in the first column.");
+      setMessage("That sheet could not be read. Use an XLSX, XLS, or CSV file with item names.");
     }
   };
 
@@ -208,7 +203,7 @@ export default function ItemMasterPage() {
         </form>
         <div className="import-panel">
           <FileSpreadsheet size={25} />
-          <div><strong>Import from Excel</strong><span>Every tab and populated column will be imported</span></div>
+          <div><strong>Import from Excel</strong><span>New items are added, changed rates and units are updated</span></div>
           <button className="secondary-button" onClick={() => fileInput.current?.click()}><Upload size={17} /> Choose file</button>
           <input ref={fileInput} className="visually-hidden" type="file" accept=".xlsx,.xls,.csv" onChange={handleFile} />
         </div>

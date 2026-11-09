@@ -1,5 +1,6 @@
 import Database from "better-sqlite3";
 import { matchesItemSearch } from "./item-search.js";
+import { runItemImport } from "./item-import.js";
 
 let db;
 
@@ -40,8 +41,6 @@ export function initializeDatabase(databasePath) {
       rate REAL NOT NULL DEFAULT 0,
       qty REAL NOT NULL DEFAULT 0,
       unit TEXT NOT NULL DEFAULT '',
-      note TEXT NOT NULL DEFAULT '',
-      is_marked INTEGER NOT NULL DEFAULT 0,
       amount REAL NOT NULL DEFAULT 0
     );
 
@@ -78,12 +77,6 @@ export function initializeDatabase(databasePath) {
   if (!itemColumns.some((column) => column.name === "unit")) {
     db.exec("ALTER TABLE bill_items ADD COLUMN unit TEXT NOT NULL DEFAULT ''");
   }
-  if (!itemColumns.some((column) => column.name === "note")) {
-    db.exec("ALTER TABLE bill_items ADD COLUMN note TEXT NOT NULL DEFAULT ''");
-  }
-  if (!itemColumns.some((column) => column.name === "is_marked")) {
-    db.exec("ALTER TABLE bill_items ADD COLUMN is_marked INTEGER NOT NULL DEFAULT 0");
-  }
 
   const masterItemColumns = db.prepare("PRAGMA table_info(items)").all();
   if (!masterItemColumns.some((column) => column.name === "rate")) {
@@ -114,10 +107,8 @@ function normalizeBill(bill) {
     .map((item) => ({
       itemName: cleanText(item.itemName),
       rate: cleanNumber(item.rate),
-      quantity: Math.max(1, Math.trunc(cleanNumber(item.quantity ?? item.qty) || 1)),
+      quantity: Math.max(0, Math.trunc(cleanNumber(item.quantity ?? item.qty))),
       per: cleanText(item.per),
-      note: cleanText(item.note),
-      isMarked: Boolean(item.isMarked),
       amount: cleanNumber(item.amount),
     }));
   const charges = (bill.charges ?? [])
@@ -181,8 +172,8 @@ export function saveBill(payload) {
     }
 
     const insertItem = db.prepare(`
-      INSERT INTO bill_items (bill_id, item_name, rate, qty, unit, note, is_marked, amount)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO bill_items (bill_id, item_name, rate, qty, unit, amount)
+      VALUES (?, ?, ?, ?, ?, ?)
     `);
     bill.items.forEach((item) => {
       insertItem.run(
@@ -191,8 +182,6 @@ export function saveBill(payload) {
         item.rate,
         item.quantity,
         item.per,
-        item.note,
-        item.isMarked ? 1 : 0,
         item.amount,
       );
     });
@@ -229,8 +218,7 @@ export function getBill(id) {
   if (!bill) return null;
 
   bill.items = db.prepare(`
-    SELECT id, item_name AS itemName, rate, qty AS quantity, unit AS per, note,
-           is_marked AS isMarked, amount
+    SELECT id, item_name AS itemName, rate, qty AS quantity, unit AS per, amount
     FROM bill_items WHERE bill_id = ? ORDER BY id
   `).all(id);
   bill.charges = db.prepare(`
@@ -244,16 +232,6 @@ export function deleteBill(id) {
   return {
     deleted: db.prepare("DELETE FROM bills WHERE id = ?").run(id).changes > 0,
   };
-}
-
-export function updateBillItemMark(billId, itemId, isMarked) {
-  const result = db.prepare(`
-    UPDATE bill_items
-    SET is_marked = ?
-    WHERE id = ? AND bill_id = ?
-  `).run(isMarked ? 1 : 0, itemId, billId);
-  if (!result.changes) throw new Error("Bill item was not found.");
-  return { updated: true, isMarked: Boolean(isMarked) };
 }
 
 export function clearBills() {
@@ -352,6 +330,10 @@ export function addItems(entries) {
       : null);
     return { added, skipped: normalized.length - added, item, items: addedItems };
   })();
+}
+
+export function importItems(entries) {
+  return runItemImport(db, entries);
 }
 
 export function deleteItem(id) {
