@@ -116,13 +116,27 @@ export default function ChallanPrintPreviewPage() {
           <h1>Ready to print</h1>
           <p>Check the challan, choose the paper and printer, then print.</p>
         </div>
-        <label>Paper size
-          <div className="segmented-control">
-            {["A6", "A4"].map((size) => (
-              <button className={pageSize === size ? "active" : ""} key={size} onClick={() => setPageSize(size)}>{size}</button>
-            ))}
-          </div>
-        </label>
+        <div className="print-control-row">
+          <label>Paper size
+            <div className="segmented-control">
+              {["A6", "A4"].map((size) => (
+                <button className={pageSize === size ? "active" : ""} key={size} onClick={() => setPageSize(size)}>{size}</button>
+              ))}
+            </div>
+          </label>
+          <label>Number of copies
+            <input
+              ref={copiesInputRef}
+              type="number"
+              min="1"
+              max="99"
+              value={copies}
+              onFocus={(event) => event.target.select()}
+              onChange={(event) => setCopies(event.target.value)}
+              onBlur={() => setCopies((value) => String(Math.max(1, Number(value) || 1)))}
+            />
+          </label>
+        </div>
         <label>Printer
           <div className="select-with-action">
             <select value={deviceName} onChange={(event) => {
@@ -136,18 +150,6 @@ export default function ChallanPrintPreviewPage() {
               <RefreshCw size={17} />
             </button>
           </div>
-        </label>
-        <label>Number of copies
-          <input
-            ref={copiesInputRef}
-            type="number"
-            min="1"
-            max="99"
-            value={copies}
-            onFocus={(event) => event.target.select()}
-            onChange={(event) => setCopies(event.target.value)}
-            onBlur={() => setCopies((value) => String(Math.max(1, Number(value) || 1)))}
-          />
         </label>
         <label>Challan zoom
           <div className="zoom-control">
