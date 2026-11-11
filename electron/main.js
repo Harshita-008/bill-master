@@ -9,6 +9,7 @@ import {
   migrateLegacyDatabase,
 } from "./data-storage.js";
 import { printPage } from "./print-job.js";
+import { loadPrinterPapers, reloadPrinterPapers } from "./printer-paper.js";
 import {
   addItems,
   addLedger,
@@ -77,7 +78,10 @@ function registerHandlers() {
   ipcMain.handle("challans:list", () => getChallans());
   ipcMain.handle("challans:get", (_, id) => getChallan(id));
   ipcMain.handle("challans:delete", (_, id) => deleteChallan(id));
-  ipcMain.handle("printers:list", (event, force) => loadPrinters(event.sender, force));
+  ipcMain.handle("printers:list", (event, force) => {
+    if (force) reloadPrinterPapers();
+    return loadPrinters(event.sender, force);
+  });
   ipcMain.handle("print", (event, options) => printPage(event.sender, options));
 }
 
@@ -123,6 +127,8 @@ function startApp() {
   }
   initializeDatabase(databasePath);
   registerHandlers();
+  // read each printer's paper size now, so printing does not wait for it
+  loadPrinterPapers();
   createWindow();
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();

@@ -3,6 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { createRequire } from "node:module";
 import pdfToPrinter from "pdf-to-printer";
+import { getPrinterPaper, pdfPageFor } from "./printer-paper.js";
 
 const require = createRequire(import.meta.url);
 
@@ -24,8 +25,9 @@ export function toPageList(ranges = []) {
 // this skips chromium's slow printer setup (canon drivers take 10+ sec there)
 export async function printFast(webContents, options) {
   const isA4 = options.pageSize === "A4";
+  const printerPaper = await getPrinterPaper(options.deviceName);
   const pdfOptions = {
-    pageSize: isA4 ? "A4" : "A6",
+    pageSize: pdfPageFor(options.pageSize, printerPaper),
     printBackground: true,
     margins: { top: 0, bottom: 0, left: 0, right: 0 },
   };
@@ -40,8 +42,8 @@ export async function printFast(webContents, options) {
       printer: options.deviceName,
       copies: Math.max(1, Number(options.copies) || 1),
       scale: "noscale",
-      // tell the printer the real paper, else it puts a6 in the corner of its default a4
-      paperSize: isA4 ? "A4" : "A6",
+      // a6 already sits on the printer's own paper size, so only a4 sets the paper
+      paperSize: isA4 ? "A4" : undefined,
       sumatraPdfPath: sumatraPath(),
     });
   } finally {
