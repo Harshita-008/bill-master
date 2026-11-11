@@ -8,7 +8,7 @@ import {
   getPersistentUserDataPath,
   migrateLegacyDatabase,
 } from "./data-storage.js";
-import { buildPrintOptions } from "./print-options.js";
+import { printPage } from "./print-job.js";
 import {
   addItems,
   addLedger,
@@ -78,29 +78,7 @@ function registerHandlers() {
   ipcMain.handle("challans:get", (_, id) => getChallan(id));
   ipcMain.handle("challans:delete", (_, id) => deleteChallan(id));
   ipcMain.handle("printers:list", (event, force) => loadPrinters(event.sender, force));
-  ipcMain.handle("print", async (event, options) => {
-    const printOnce = (printOptions) => new Promise((resolve) => {
-      event.sender.print(printOptions, (success, failureReason) => {
-        resolve({ success, failureReason });
-      });
-    });
-    const printOptions = buildPrintOptions(options);
-    const directResult = await printOnce(printOptions);
-    if (directResult.success || directResult.failureReason !== "Invalid printer settings" || !options.deviceName) {
-      return directResult;
-    }
-
-    const fallbackResult = await printOnce({
-      ...printOptions,
-      silent: false,
-      deviceName: undefined,
-    });
-    return {
-      ...fallbackResult,
-      usedSystemDialog: true,
-      directFailureReason: directResult.failureReason,
-    };
-  });
+  ipcMain.handle("print", (event, options) => printPage(event.sender, options));
 }
 
 function createWindow() {

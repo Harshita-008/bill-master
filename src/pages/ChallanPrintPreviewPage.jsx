@@ -100,7 +100,7 @@ export default function ChallanPrintPreviewPage() {
     setStatus(result.success
       ? result.usedSystemDialog
         ? "Printed using the Windows print settings window."
-        : "Print job sent successfully."
+        : result.seconds != null ? `Print job sent in ${result.seconds} s.` : "Print job sent successfully."
       : result.failureReason || "Printing was cancelled.");
     printingRef.current = false;
   }
