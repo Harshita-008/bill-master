@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { BookOpen } from "lucide-react";
 import { api } from "../../services/api";
+import { findSavedLedger } from "../../utils/findSaved";
 import { moveBackAtStart } from "../../utils/focus";
 import LedgerDialog from "./LedgerDialog";
 import SuggestionPanel from "./SuggestionPanel";
@@ -86,8 +87,12 @@ export default function LedgerAutocomplete({
 
   const handleKeyDown = async (event) => {
     if (moveBackAtStart(event, null)) return;
-    if (event.key === "Enter" && event.ctrlKey && selectedLedger) {
+    // ctrl + enter or alt + enter: alter this ledger (also works on a saved bill)
+    if (event.key === "Enter" && (event.ctrlKey || event.altKey)) {
       event.preventDefault();
+      const ledger = selectedLedger || await findSavedLedger(value);
+      if (!ledger) return;
+      setSelectedLedger(ledger);
       setOpen(false);
       setEditOpen(true);
     } else if (event.key === "ArrowDown" && open && options.length) {

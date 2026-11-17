@@ -220,12 +220,13 @@
 .dialog-error { color: var(--danger); font-size: 12px; margin: 9px 0 0; }
 .dialog-actions { display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-top: 22px; }
 .dialog-actions span { color: var(--faint); font-size: 11px; }
+.dialog-buttons { display: flex; align-items: center; gap: 8px; }
 .delete-ledger-dialog { width: min(460px, calc(100vw - 36px)); }
 .danger-icon { color: var(--danger); background: color-mix(in srgb, var(--danger) 10%, var(--surface)); }
 .delete-dialog-actions { justify-content: flex-end; }
-.exit-dialog { width: min(420px, calc(100vw - 36px)); }
-.exit-dialog .dialog-actions button { min-width: 84px; }
-.exit-dialog .dialog-actions button span { color: inherit; font-size: 15px; }
+.confirm-dialog { width: min(420px, calc(100vw - 36px)); }
+.confirm-dialog .dialog-actions button { min-width: 84px; }
+.confirm-dialog .dialog-actions button span { color: inherit; font-size: 15px; }
 
 @media (max-width: 900px) {
   .editor-card { overflow-x: auto; }

@@ -3,7 +3,7 @@ const KEYS = [
   ["Enter", "Next"],
   ["Backspace", "Previous"],
   ["Alt+C", "Create master"],
-  ["Ctrl+Enter", "Alter master"],
+  ["Alt+Enter", "Alter master"],
   ["Esc", "Clear / Exit"],
 ];
 

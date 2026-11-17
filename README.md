@@ -71,10 +71,8 @@ is kept when BillMaster is upgraded, reinstalled, or uninstalled. To clear one
 part, close BillMaster and delete that file together with its `-wal` and `-shm`
 files; an empty one is created on the next start.
 
-Older versions used a single `billmaster.db`. On first start it is split into
-the three files (keeping bill numbers) and renamed to
-`billmaster-before-split.db` as a backup. Database files, spreadsheet imports,
-and SQLite WAL/SHM files are excluded by `.gitignore` and must not be committed.
+Database files, spreadsheet imports, and SQLite WAL/SHM files are excluded by
+`.gitignore` and must not be committed.
 
 ## Excel item import
 

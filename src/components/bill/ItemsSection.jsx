@@ -69,6 +69,10 @@ export default function ItemsSection({
                   onUpdate(item.key, "rate", Number(savedItem.rate) ? String(savedItem.rate) : "");
                   onUpdate(item.key, "per", savedItem.per || "");
                 }}
+                onItemDeleted={() => {
+                  onUpdate(item.key, "rate", "");
+                  onUpdate(item.key, "per", "");
+                }}
               />
               <input
                 ref={(element) => setCellRef(index, "quantity", element)}

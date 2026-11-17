@@ -303,6 +303,11 @@ export default function ItemMasterPage() {
             setMessage(`"${updatedName}" was updated.`);
             setEditingItem(null);
           }}
+          onDeleted={(id) => {
+            setItems((current) => current.filter((entry) => entry.id !== id));
+            setMessage(`"${editingItem.name}" was deleted.`);
+            setEditingItem(null);
+          }}
         />
       )}
       {bulkDeleteOpen && (

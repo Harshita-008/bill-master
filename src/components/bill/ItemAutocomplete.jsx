@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Search } from "lucide-react";
 import { api } from "../../services/api";
+import { findSavedItem } from "../../utils/findSaved";
 import { moveBackAtStart } from "../../utils/focus";
 import LedgerDialog from "./LedgerDialog";
 import SuggestionPanel from "./SuggestionPanel";
@@ -17,6 +18,7 @@ export default function ItemAutocomplete({
   itemKey,
   suggestionHost,
   onItemSelect = () => {},
+  onItemDeleted = () => {},
 }) {
   const [options, setOptions] = useState([]);
   const [open, setOpen] = useState(false);
@@ -96,8 +98,12 @@ export default function ItemAutocomplete({
   const handleKeyDown = async (event) => {
     const previousTarget = typeof previousInput === "function" ? previousInput() : previousInput;
     if (moveBackAtStart(event, previousTarget)) return;
-    if (event.key === "Enter" && event.ctrlKey && selectedItem) {
+    // ctrl + enter or alt + enter: alter this item (also works on rows of a saved bill)
+    if (event.key === "Enter" && (event.ctrlKey || event.altKey)) {
       event.preventDefault();
+      const item = selectedItem || await findSavedItem(value);
+      if (!item) return;
+      setSelectedItem(item);
       setOpen(false);
       setEditOpen(true);
     } else if (event.key === "ArrowDown" && open && options.length) {
@@ -167,7 +173,7 @@ export default function ItemAutocomplete({
           type="item"
           mode="edit"
           entityId={selectedItem.id}
-        initialName={value}
+          initialName={value}
           initialRate={selectedItem.rate}
           initialPer={selectedItem.per}
           onClose={() => {
@@ -179,6 +185,15 @@ export default function ItemAutocomplete({
             setSelectedItem(item || { ...selectedItem, name });
             onChange(name);
             if (item) onItemSelect(item);
+            setEditOpen(false);
+            setTimeout(() => fieldRef.current?.focus(), 0);
+          }}
+          onDeleted={() => {
+            // the item is gone from the list, so clear this row
+            suppressNextSearch.current = true;
+            setSelectedItem(null);
+            onChange("");
+            onItemDeleted();
             setEditOpen(false);
             setTimeout(() => fieldRef.current?.focus(), 0);
           }}

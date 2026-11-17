@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from "react";
-import { BookPlus, PackagePlus, X } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { BookPlus, PackagePlus, Trash2, X } from "lucide-react";
 import { api } from "../../services/api";
+import ConfirmDialog from "../ui/ConfirmDialog";
 
 export default function LedgerDialog({
   open,
@@ -12,6 +13,7 @@ export default function LedgerDialog({
   initialPer = "",
   onClose,
   onSaved,
+  onDeleted,
 }) {
   const [name, setName] = useState(initialName);
   const [rate, setRate] = useState(initialRate || "");
@@ -20,6 +22,23 @@ export default function LedgerDialog({
   const inputRef = useRef(null);
   const rateInputRef = useRef(null);
   const perInputRef = useRef(null);
+  const [askDelete, setAskDelete] = useState(false);
+  // only a saved item being altered can be deleted
+  const canDelete = type === "item" && mode === "edit" && Boolean(onDeleted);
+
+  const deleteItem = useCallback(async () => {
+    setAskDelete(false);
+    try {
+      await api.deleteItem(entityId);
+      onDeleted(entityId);
+    } catch (deleteError) {
+      setError(deleteError.message || "Could not delete the item.");
+    }
+  }, [entityId, onDeleted]);
+  const keepItem = useCallback(() => {
+    setAskDelete(false);
+    setTimeout(() => inputRef.current?.focus(), 0);
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -77,6 +96,9 @@ export default function LedgerDialog({
             event.preventDefault();
             event.stopPropagation();
             close();
+          } else if (canDelete && event.altKey && event.key === "Delete") {
+            event.preventDefault();
+            setAskDelete(true);
           }
         }}
       >
@@ -133,10 +155,27 @@ export default function LedgerDialog({
         )}
         {error && <p className="dialog-error">{error}</p>}
         <div className="dialog-actions">
-          <span>Enter to save · Esc to close</span>
-          <button className="primary-button" type="submit">{isEditing ? "Save changes" : "Save"}</button>
+          <span>Enter to save{canDelete ? " · Alt+Del to delete" : ""} · Esc to close</span>
+          <div className="dialog-buttons">
+            {canDelete && (
+              <button type="button" className="danger-button" onClick={() => setAskDelete(true)}>
+                <Trash2 size={16} /> Delete
+              </button>
+            )}
+            <button className="primary-button" type="submit">{isEditing ? "Save changes" : "Save"}</button>
+          </div>
         </div>
       </form>
+      {askDelete && (
+        <ConfirmDialog
+          icon={Trash2}
+          danger
+          title={`Delete ${name.trim() || "this item"}?`}
+          message="It will be removed from your saved items. Saved bills keep their copy."
+          onYes={deleteItem}
+          onNo={keepItem}
+        />
+      )}
     </div>
   );
 }

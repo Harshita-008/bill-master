@@ -25,7 +25,7 @@ export function initializeDatabase(folder) {
     { db: openBillsDb(path.join(folder, DB_FILES.bills)), tables: BILLS_TABLES },
     { db: openChallansDb(path.join(folder, DB_FILES.challans)), tables: CHALLANS_TABLES },
   ];
-  return { splitBackup: splitOldDatabase(folder, parts) };
+  return { movedOldDatabase: splitOldDatabase(folder, parts) };
 }
 
 export function closeDatabase() {
