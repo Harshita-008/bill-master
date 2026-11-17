@@ -13,6 +13,7 @@ import {
   readCachedPrinters,
   rememberPrinter,
 } from "../utils/printerCache";
+import { BILL_COPIES_KEY, readCopies, saveCopies } from "../utils/savedCopies";
 
 export default function PrintPreviewPage() {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ export default function PrintPreviewPage() {
     }
   }, []);
   const [pageSize, setPageSize] = useState("A6");
-  const [copies, setCopies] = useState("1");
+  const [copies, setCopies] = useState(() => readCopies(BILL_COPIES_KEY, "1"));
   const [printers, setPrinters] = useState(readCachedPrinters);
   const [deviceName, setDeviceName] = useState(() => localStorage.getItem(PREFERRED_PRINTER_KEY) || "");
   const [status, setStatus] = useState("");
@@ -92,6 +93,9 @@ export default function PrintPreviewPage() {
     window.addEventListener("keydown", closeOnEscape);
     return () => window.removeEventListener("keydown", closeOnEscape);
   }, [awaitingFlip]);
+
+  // remember the copies until the user changes them again
+  useEffect(() => saveCopies(BILL_COPIES_KEY, copies), [copies]);
 
   useEnterToPrint(handlePrint, copiesInputRef);
 

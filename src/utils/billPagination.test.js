@@ -6,7 +6,7 @@ function rows(count) {
 }
 
 describe("paginateBillRows", () => {
-  it("continues overflowing rows on additional fixed-capacity pages", () => {
+  it("keeps room for a total line at the bottom of every page", () => {
     const billRows = rows(12);
     const heights = new Map(billRows.map((row) => [row.key, 100]));
 
@@ -18,22 +18,34 @@ describe("paginateBillRows", () => {
       footerHeight: 30,
     });
 
-    expect(pages.map((page) => page.length)).toEqual([4, 4, 4]);
+    // 410 - 30 fits 3 rows, 470 - 30 fits 4 rows
+    expect(pages.map((page) => page.length)).toEqual([3, 4, 4, 1]);
     expect(pages.flat().map((row) => row.key)).toEqual(billRows.map((row) => row.key));
   });
 
-  it("adds a final page when the total does not fit below the last row", () => {
-    const billRows = rows(2);
+  it("also keeps room for brought forward at the top of later pages", () => {
+    const billRows = rows(9);
     const heights = new Map(billRows.map((row) => [row.key, 100]));
 
     const pages = paginateBillRows({
       rows: billRows,
       rowHeights: heights,
-      firstPageCapacity: 200,
-      continuationPageCapacity: 200,
+      firstPageCapacity: 430,
+      continuationPageCapacity: 430,
       footerHeight: 30,
+      broughtForwardHeight: 30,
     });
 
-    expect(pages.map((page) => page.length)).toEqual([1, 1]);
+    // first page 430 - 30 fits 4, later pages 430 - 30 - 30 fit 3
+    expect(pages.map((page) => page.length)).toEqual([4, 3, 2]);
+  });
+
+  it("puts a short bill on one page", () => {
+    const billRows = rows(2);
+    const heights = new Map(billRows.map((row) => [row.key, 100]));
+    const pages = paginateBillRows({
+      rows: billRows, rowHeights: heights, firstPageCapacity: 400, continuationPageCapacity: 400, footerHeight: 30,
+    });
+    expect(pages.map((page) => page.length)).toEqual([2]);
   });
 });

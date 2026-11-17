@@ -99,4 +99,36 @@ describe("print preview keyboard defaults", () => {
     await user.keyboard("{Enter}");
     await waitFor(() => expect(print).toHaveBeenCalledTimes(1));
   });
+
+  it("remembers the number of copies, separately for bills and challans", async () => {
+    sessionStorage.setItem("billmaster.printDraft", JSON.stringify({
+      companyName: "Acme", createdAt: "2026-08-06T00:00:00.000Z", items: [], charges: [], grandTotal: 0,
+    }));
+    sessionStorage.setItem("billmaster.challanPrintDraft", JSON.stringify({ toLine1: "Acme", challanDate: "06/08/2026" }));
+    const user = userEvent.setup();
+
+    const bill = render(<MemoryRouter><PrintPreviewPage /></MemoryRouter>);
+    expect(screen.getByLabelText("Number of copies").value).toBe("1");
+    await user.tripleClick(screen.getByLabelText("Number of copies"));
+    await user.keyboard("3");
+    bill.unmount();
+
+    // opening the bill print again keeps 3
+    const billAgain = render(<MemoryRouter><PrintPreviewPage /></MemoryRouter>);
+    expect(screen.getByLabelText("Number of copies").value).toBe("3");
+    billAgain.unmount();
+
+    // challans keep their own number
+    const challan = render(<MemoryRouter><ChallanPrintPreviewPage /></MemoryRouter>);
+    expect(screen.getByLabelText("Number of copies").value).toBe("2");
+    await user.tripleClick(screen.getByLabelText("Number of copies"));
+    await user.keyboard("4");
+    challan.unmount();
+
+    render(<MemoryRouter><ChallanPrintPreviewPage /></MemoryRouter>);
+    expect(screen.getByLabelText("Number of copies").value).toBe("4");
+    cleanup();
+    render(<MemoryRouter><PrintPreviewPage /></MemoryRouter>);
+    expect(screen.getByLabelText("Number of copies").value).toBe("3");
+  });
 });

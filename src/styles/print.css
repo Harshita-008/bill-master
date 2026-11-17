@@ -106,12 +106,15 @@
 .simple-document-table th:nth-child(5), .simple-document-table td:nth-child(5) { text-align: right; }
 .previous-amount-document-row .invoice-adjustment-label,
 .previous-amount-document-row .invoice-adjustment-value { font-weight: 700; text-align: right; }
-.simple-document-table tfoot td { padding-top: 2.5mm; font-weight: 700; }
-.simple-document-table tfoot .invoice-total-label {
+/* total, brought forward and carried forward lines */
+.simple-document-table .total-line td { font-weight: 700; }
+.simple-document-table tfoot td { padding-top: 2.5mm; }
+.simple-document-table tbody .total-line td { padding-bottom: 2.5mm; }
+.simple-document-table .invoice-total-label {
   padding-right: 3mm;
   text-align: right;
 }
-.simple-document-table tfoot .invoice-total-value { text-align: right; }
+.simple-document-table .invoice-total-value { text-align: right; }
 .item-document-name-cell { overflow-wrap: anywhere; }
 
 .page-a6 .simple-document-header { margin-bottom: 4mm; }

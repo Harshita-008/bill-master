@@ -1,5 +1,5 @@
 import React from "react";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import BillForm from "./BillForm";
@@ -10,6 +10,36 @@ afterEach(() => {
 });
 
 describe("BillForm", () => {
+  it("replaces a saved rate when typing with the cursor at its start, but edits normally at the end", async () => {
+    localStorage.setItem("billmaster.preview.items", JSON.stringify([{ id: 1, name: "Roller", rate: 350, per: "PC" }]));
+    const user = userEvent.setup();
+    render(React.createElement(BillForm, { onBillChange: vi.fn() }));
+    const rate = screen.getByLabelText("Rate for item 1");
+
+    await user.type(screen.getByLabelText("Item name 1"), "Roller");
+    await user.click(await screen.findByRole("option", { name: "Roller" }));
+    expect(rate.value).toBe("350");
+
+    // qty, then Enter puts the cursor at the start of 350
+    await user.type(screen.getByLabelText("Quantity for item 1"), "2{Enter}");
+    expect(document.activeElement).toBe(rate);
+    expect(rate.selectionStart).toBe(0);
+    await user.keyboard("400");
+    expect(rate.value).toBe("400");
+
+    // cursor at the end: normal editing
+    await user.keyboard("{End}5");
+    expect(rate.value).toBe("4005");
+
+    // back from per with Backspace lands at the start again, so typing replaces
+    await user.click(screen.getByLabelText("Per for item 1"));
+    screen.getByLabelText("Per for item 1").setSelectionRange(0, 0);
+    await user.keyboard("{Backspace}");
+    expect(document.activeElement).toBe(rate);
+    await user.keyboard("450");
+    expect(rate.value).toBe("450");
+  });
+
   it("calculates item, charge, and grand totals while keeping values in the amount column", async () => {
     const user = userEvent.setup();
     const onBillChange = vi.fn();
@@ -269,9 +299,10 @@ describe("BillForm", () => {
     expect(JSON.parse(localStorage.getItem("billmaster.preview.ledgers"))[0].name).toBe("Harshita");
   });
 
-  it("opens blank item creation with Alt+C and leaves the item cell empty", async () => {
+  it("creates an item with Alt+C and puts it straight into that bill row", async () => {
     const user = userEvent.setup();
-    render(React.createElement(BillForm, { onBillChange: vi.fn() }));
+    const onBillChange = vi.fn();
+    render(React.createElement(BillForm, { onBillChange }));
 
     const itemInput = screen.getByLabelText("Item name 1");
     await user.type(itemInput, "New Drum");
@@ -284,7 +315,13 @@ describe("BillForm", () => {
     await user.type(screen.getByLabelText("Rate"), "80{Enter}");
     await user.type(screen.getByLabelText("Per"), "pc{Enter}");
 
-    expect(itemInput.value).toBe("");
+    // the new item fills the row and the cursor goes on to quantity
+    expect(itemInput.value).toBe("New Drum");
+    expect(screen.getByLabelText("Rate for item 1").value).toBe("80");
+    expect(screen.getByLabelText("Per for item 1").value).toBe("pc");
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByLabelText("Quantity for item 1")));
+    await user.keyboard("3");
+    expect(onBillChange.mock.calls.at(-1)[0].items[0]).toMatchObject({ itemName: "New Drum", rate: 80, quantity: 3, per: "pc", amount: 240 });
     const savedItems = JSON.parse(localStorage.getItem("billmaster.preview.items"));
     expect(savedItems.some((item) => item.name === "New Drum")).toBe(true);
     expect(savedItems[0]).toEqual(expect.objectContaining({ rate: 80, per: "pc" }));

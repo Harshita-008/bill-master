@@ -33,64 +33,31 @@ export function createBillRows(bill) {
   return [...itemRows, ...chargeRows, ...previousRows];
 }
 
+// every page ends with a total row (carried forward, or the final total),
+// and every page after the first starts with a brought forward row
 export function paginateBillRows({
   rows,
   rowHeights,
   firstPageCapacity,
   continuationPageCapacity,
   footerHeight,
+  broughtForwardHeight = 0,
 }) {
+  const heightOf = (row) => Math.max(1, Number(rowHeights.get(row.key)) || 1);
   const pages = [];
-  let rowIndex = 0;
+  let page = [];
+  let used = 0;
 
-  while (rowIndex < rows.length) {
-    const capacity = pages.length === 0 ? firstPageCapacity : continuationPageCapacity;
-    const pageRows = [];
-    let usedHeight = 0;
-
-    while (rowIndex < rows.length) {
-      const row = rows[rowIndex];
-      const rowHeight = Math.max(1, Number(rowHeights.get(row.key)) || 1);
-      const remainingHeight = rows.slice(rowIndex).reduce(
-        (total, remainingRow) => total + Math.max(1, Number(rowHeights.get(remainingRow.key)) || 1),
-        footerHeight,
-      );
-
-      if (usedHeight + remainingHeight <= capacity) {
-        pageRows.push(...rows.slice(rowIndex));
-        rowIndex = rows.length;
-        break;
-      }
-
-      if (pageRows.length > 0 && usedHeight + rowHeight > capacity) break;
-      pageRows.push(row);
-      usedHeight += rowHeight;
-      rowIndex += 1;
+  rows.forEach((row) => {
+    const capacity = pages.length === 0 ? firstPageCapacity : continuationPageCapacity - broughtForwardHeight;
+    if (page.length && used + heightOf(row) > capacity - footerHeight) {
+      pages.push(page);
+      page = [];
+      used = 0;
     }
-
-    pages.push(pageRows);
-  }
-
-  if (pages.length === 0) pages.push([]);
-
-  const lastPageIndex = pages.length - 1;
-  const lastCapacity = lastPageIndex === 0 ? firstPageCapacity : continuationPageCapacity;
-  const lastRowsHeight = pages[lastPageIndex].reduce(
-    (total, row) => total + Math.max(1, Number(rowHeights.get(row.key)) || 1),
-    0,
-  );
-  if (lastRowsHeight + footerHeight > lastCapacity) {
-    const nextPageRows = [];
-    let nextPageHeight = footerHeight;
-    while (pages[lastPageIndex].length > 1) {
-      const candidate = pages[lastPageIndex][pages[lastPageIndex].length - 1];
-      const candidateHeight = Math.max(1, Number(rowHeights.get(candidate.key)) || 1);
-      if (nextPageHeight + candidateHeight > continuationPageCapacity) break;
-      nextPageRows.unshift(pages[lastPageIndex].pop());
-      nextPageHeight += candidateHeight;
-    }
-    pages.push(nextPageRows);
-  }
-
+    page.push(row);
+    used += heightOf(row);
+  });
+  pages.push(page);
   return pages;
 }

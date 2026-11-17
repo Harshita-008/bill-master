@@ -11,6 +11,7 @@ import {
   readCachedPrinters,
   rememberPrinter,
 } from "../utils/printerCache";
+import { CHALLAN_COPIES_KEY, readCopies, saveCopies } from "../utils/savedCopies";
 
 export default function ChallanPrintPreviewPage() {
   const navigate = useNavigate();
@@ -22,7 +23,7 @@ export default function ChallanPrintPreviewPage() {
     }
   }, []);
   const [pageSize, setPageSize] = useState("A6");
-  const [copies, setCopies] = useState("2");
+  const [copies, setCopies] = useState(() => readCopies(CHALLAN_COPIES_KEY, "2"));
   const [printers, setPrinters] = useState(readCachedPrinters);
   const [deviceName, setDeviceName] = useState(() => localStorage.getItem(PREFERRED_PRINTER_KEY) || "");
   const [status, setStatus] = useState("");
@@ -78,6 +79,9 @@ export default function ChallanPrintPreviewPage() {
       observer.disconnect();
     };
   }, [fitToView]);
+
+  // remember the copies until the user changes them again
+  useEffect(() => saveCopies(CHALLAN_COPIES_KEY, copies), [copies]);
 
   useEnterToPrint(handlePrint, copiesInputRef);
 

@@ -17,10 +17,10 @@ import {
   updateLedger,
 } from "../electron/database.js";
 
-const databasePath = path.join(os.tmpdir(), `billmaster-test-${Date.now()}.db`);
+const folder = fs.mkdtempSync(path.join(os.tmpdir(), "billmaster-test-"));
 
 try {
-  initializeDatabase(databasePath);
+  initializeDatabase(folder);
   const imported = addItems(["Cement", "cement", " Bricks ", "Bricks", ...Array.from(
     { length: 125 },
     (_, index) => `Item ${String(index + 1).padStart(3, "0")}`,
@@ -79,8 +79,5 @@ try {
   }));
 } finally {
   closeDatabase();
-  for (const suffix of ["", "-wal", "-shm"]) {
-    const target = databasePath + suffix;
-    if (fs.existsSync(target)) fs.unlinkSync(target);
-  }
+  fs.rmSync(folder, { recursive: true, force: true });
 }

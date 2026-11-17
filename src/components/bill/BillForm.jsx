@@ -55,10 +55,18 @@ export default function BillForm({
     return () => window.removeEventListener("keydown", openMasterDialog);
   }, [form]);
 
-  const closeMasterDialog = () => {
-    const returnInput = dialogContext?.input;
+  const closeMasterDialog = (returnInput = dialogContext?.input) => {
     setDialogContext(null);
     setTimeout(() => focusAtStart(returnInput), 0);
+  };
+
+  // alt + c item: the new item goes straight into the row it was made from, then on to quantity
+  const putNewItemInRow = (item) => {
+    const { itemKey, input } = dialogContext;
+    form.updateItem(itemKey, "itemName", item.name);
+    form.updateItem(itemKey, "rate", Number(item.rate) ? String(item.rate) : "");
+    form.updateItem(itemKey, "per", item.per || "");
+    closeMasterDialog(input.closest(".bill-row")?.querySelector('[aria-label^="Quantity for item"]') || input);
   };
 
   return (
@@ -117,9 +125,10 @@ export default function BillForm({
           open
           type={dialogContext.type}
           initialName={dialogContext.initialName}
-          onClose={closeMasterDialog}
-          onSaved={() => {
-            closeMasterDialog();
+          onClose={() => closeMasterDialog()}
+          onSaved={(name, record) => {
+            if (dialogContext.type === "item" && record) putNewItemInRow(record);
+            else closeMasterDialog();
           }}
         />
       )}

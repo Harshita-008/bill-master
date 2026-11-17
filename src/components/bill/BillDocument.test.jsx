@@ -71,4 +71,20 @@ describe("BillDocument", () => {
     expect(container.querySelector(".invoice-adjustment-value")?.textContent).toBe("100.00");
     expect(screen.queryByText("-100.00")).toBeNull();
   });
+
+  it("shows brought forward at the top and carried forward at the bottom of a middle page", () => {
+    const { container } = render(React.createElement(BillDocument, {
+      bill: { companyName: "Acme", items: [], charges: [], grandTotal: 900 },
+      rows: [{ kind: "item", key: "a", value: { itemName: "Pen", quantity: 1, per: "pc", rate: 50, amount: 50 } }],
+      showHeader: false,
+      showFooter: false,
+      broughtForward: 300,
+      carriedForward: 350,
+    }));
+
+    const lines = [...container.querySelectorAll("tr")].map((row) => row.textContent);
+    expect(lines[1]).toBe("Brought forward300.00");
+    expect(lines.at(-1)).toBe("Carried forward350.00");
+    expect(screen.queryByText("Total")).toBeNull();
+  });
 });

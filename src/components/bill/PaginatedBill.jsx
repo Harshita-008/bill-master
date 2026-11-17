@@ -5,6 +5,7 @@ import {
   createBillRows,
   paginateBillRows,
 } from "../../utils/billPagination";
+import { pageTotals } from "../../utils/pageTotals";
 
 const PAGE_GAP = 24;
 
@@ -21,6 +22,7 @@ export default function PaginatedBill({
     const currentRows = new Map(allRows.map((row) => [row.key, row]));
     return pages.map((page) => page.map((row) => currentRows.get(row.key) || row));
   }, [allRows, pages]);
+  const totals = useMemo(() => pageTotals(renderedPages), [renderedPages]);
   const pagePixels = BILL_PAGE_LAYOUT[pageSize];
 
   const measurePages = useCallback(() => {
@@ -44,6 +46,8 @@ export default function PaginatedBill({
       firstPageCapacity: Math.max(1, contentHeight - headerHeight - tableHeaderHeight),
       continuationPageCapacity: Math.max(1, contentHeight - tableHeaderHeight),
       footerHeight,
+      // brought forward row looks like the total row, so it is the same height
+      broughtForwardHeight: footerHeight,
     });
     const currentSignature = pages.map((page) => page.map((row) => row.key).join("|")).join("::");
     const nextSignature = nextPages.map((page) => page.map((row) => row.key).join("|")).join("::");
@@ -85,6 +89,8 @@ export default function PaginatedBill({
               showFooter={index === pages.length - 1}
               pageNumber={index + 1}
               pageCount={pages.length}
+              broughtForward={index > 0 ? totals[index].broughtForward : null}
+              carriedForward={index < pages.length - 1 ? totals[index].carriedForward : null}
             />
           ))}
         </div>

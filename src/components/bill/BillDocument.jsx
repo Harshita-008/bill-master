@@ -1,5 +1,6 @@
 import { formatAmount, formatAmountOrBlank, formatDateOnly } from "../../utils/formatters";
 import { createBillRows } from "../../utils/billPagination";
+import TotalRow from "./TotalRow";
 
 export default function BillDocument({
   bill,
@@ -11,6 +12,8 @@ export default function BillDocument({
   showFooter = true,
   pageNumber,
   pageCount,
+  broughtForward = null,
+  carriedForward = null,
 }) {
   return (
     <article
@@ -43,6 +46,7 @@ export default function BillDocument({
           </tr>
         </thead>
         <tbody>
+          {broughtForward !== null && <TotalRow label="Brought forward" amount={broughtForward} />}
           {rows.map((row) => {
             if (row.kind === "item") {
               const item = row.value;
@@ -78,13 +82,10 @@ export default function BillDocument({
           })}
         </tbody>
         {showFooter && (
-          <tfoot>
-            <tr>
-              <td colSpan="3" />
-              <td className="invoice-total-label">Total</td>
-              <td className="invoice-total-value">{formatAmount(bill.grandTotal)}</td>
-            </tr>
-          </tfoot>
+          <tfoot><TotalRow label="Total" amount={bill.grandTotal} /></tfoot>
+        )}
+        {!showFooter && carriedForward !== null && (
+          <tfoot><TotalRow label="Carried forward" amount={carriedForward} /></tfoot>
         )}
       </table>
     </article>

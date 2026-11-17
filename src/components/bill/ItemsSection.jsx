@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { Trash2 } from "lucide-react";
 import ItemAutocomplete from "./ItemAutocomplete";
 import { formatCurrency } from "../../utils/formatters";
-import { clearOnEscape, focusAtStart, moveBackAtStart } from "../../utils/focus";
+import { clearOnEscape, focusAtStart, moveBackAtStart, replaceWhenAtStart } from "../../utils/focus";
 
 export default function ItemsSection({
   items,
@@ -103,6 +103,7 @@ export default function ItemsSection({
                   }
                 }}
                 onKeyDown={(event) => {
+                  replaceWhenAtStart(event);
                   if (clearOnEscape(event, () => onUpdate(item.key, "rate", ""))) return;
                   if (moveBackAtStart(event, rowRefs.current[index]?.quantity)) return;
                   if (event.key === "Enter") {

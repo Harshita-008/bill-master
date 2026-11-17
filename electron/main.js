@@ -8,6 +8,7 @@ import {
   getPersistentUserDataPath,
   migrateLegacyDatabase,
 } from "./data-storage.js";
+import { hasAnyDatabase } from "./db/files.js";
 import { printPage } from "./print-job.js";
 import { loadPrinterPapers, reloadPrinterPapers } from "./printer-paper.js";
 import {
@@ -113,19 +114,18 @@ if (!app.requestSingleInstanceLock()) {
 }
 
 function startApp() {
-  const databasePath = isDev
-    ? path.join(__dirname, "../billmaster.db")
-    : path.join(app.getPath("userData"), DATABASE_FILE_NAME);
-  if (!isDev) {
+  const dataFolder = isDev ? path.join(__dirname, "..") : app.getPath("userData");
+  // first run only: bring over data from older install locations
+  if (!isDev && !hasAnyDatabase(dataFolder)) {
     const appDataPath = app.getPath("appData");
-    migrateLegacyDatabase(databasePath, [
+    migrateLegacyDatabase(path.join(dataFolder, DATABASE_FILE_NAME), [
       path.join(originalUserDataPath, DATABASE_FILE_NAME),
       path.join(appDataPath, "bill-master", DATABASE_FILE_NAME),
       path.join(appDataPath, "billmaster", DATABASE_FILE_NAME),
       path.join(path.dirname(app.getPath("exe")), DATABASE_FILE_NAME),
     ]);
   }
-  initializeDatabase(databasePath);
+  initializeDatabase(dataFolder);
   registerHandlers();
   // read each printer's paper size now, so printing does not wait for it
   loadPrinterPapers();

@@ -40,6 +40,14 @@ export function prepareOverwriteOnType(event) {
   return false;
 }
 
+// |350 + typing 4 -> 4 (replace), but 350| + typing keeps normal editing
+export function replaceWhenAtStart(event) {
+  const input = event.currentTarget;
+  const isPrintable = event.key.length === 1 && !event.altKey && !event.ctrlKey && !event.metaKey;
+  if (!isPrintable || !input.value) return;
+  if (input.selectionStart === 0 && input.selectionEnd === 0) input.select();
+}
+
 export function clearOnEscape(event, clear) {
   if (event.key !== "Escape") return false;
   event.preventDefault();
