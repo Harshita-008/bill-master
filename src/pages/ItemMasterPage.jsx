@@ -8,6 +8,7 @@ import PageHeader from "../components/ui/PageHeader";
 import SelectionToolbar from "../components/ui/SelectionToolbar";
 import useSelection from "../hooks/useSelection";
 import { api } from "../services/api";
+import { searchItems } from "../../electron/item-search.js";
 import { extractItems } from "../utils/itemImport";
 import { importMessage } from "../utils/importMessage";
 import { readWorkbookRows } from "../utils/readWorkbook";
@@ -34,9 +35,8 @@ export default function ItemMasterPage() {
   const loadItems = () => api.getItems("", null).then(setItems);
   useEffect(() => { loadItems(); }, []);
 
-  const filtered = useMemo(() => items.filter((item) => (
-    item.name.toLocaleLowerCase().includes(query.toLocaleLowerCase())
-  )), [items, query]);
+  // same search as the bill's item box
+  const filtered = useMemo(() => searchItems(items, query), [items, query]);
   const visibleIds = useMemo(() => filtered.map((item) => item.id), [filtered]);
   const selection = useSelection(visibleIds);
 

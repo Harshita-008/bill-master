@@ -1,4 +1,4 @@
-import { matchesItemSearch } from "../../electron/item-search.js";
+import { searchItems } from "../../electron/item-search.js";
 import { combineImportedItems, mergeItem } from "../../electron/item-merge.js";
 
 const STORAGE = {
@@ -54,9 +54,8 @@ const browserFallback = {
     return { deleted: remaining.length !== bills.length };
   },
   async getItems(query = "", limit = 100) {
-    const matches = read(STORAGE.items)
-      .filter((item) => matchesItemSearch(item.name, query))
-      .sort((a, b) => a.name.localeCompare(b.name));
+    const sorted = read(STORAGE.items).sort((a, b) => a.name.localeCompare(b.name));
+    const matches = searchItems(sorted, query);
     return Number.isInteger(limit) && limit > 0 ? matches.slice(0, limit) : matches;
   },
   async addItems(entries) {

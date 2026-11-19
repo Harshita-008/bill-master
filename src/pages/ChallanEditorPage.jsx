@@ -2,9 +2,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Eye, FilePlus2, Save } from "lucide-react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import ChallanForm from "../components/challan/ChallanForm";
+import ExitDialog from "../components/ui/ExitDialog";
 import PageHeader from "../components/ui/PageHeader";
+import useConfirmExit from "../hooks/useConfirmExit";
 import { api } from "../services/api";
 import { hydrateChallan } from "../utils/challan";
+import { clearEditorDrafts } from "../utils/editorDrafts";
 
 const DRAFT_KEY = "billmaster.challanEditorDraft";
 const PRINT_KEY = "billmaster.challanPrintDraft";
@@ -32,6 +35,12 @@ export default function ChallanEditorPage() {
   const [saving, setSaving] = useState(false);
   const [formVersion, setFormVersion] = useState(0);
   const [suggestionHost, setSuggestionHost] = useState(null);
+  // esc on an empty box asks before leaving, like the bill editor
+  const exit = useConfirmExit();
+  const leaveToHome = useCallback(() => {
+    clearEditorDrafts(location.pathname);
+    navigate("/", { replace: true });
+  }, [location.pathname, navigate]);
 
   useEffect(() => {
     if (!id || initialChallan) return;
@@ -155,6 +164,7 @@ export default function ChallanEditorPage() {
         </div>
         <aside className="suggestion-rail" ref={setSuggestionHost} />
       </div>
+      {exit.asking && <ExitDialog what="challan" onYes={leaveToHome} onNo={exit.stay} />}
     </div>
   );
 }

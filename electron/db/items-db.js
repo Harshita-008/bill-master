@@ -1,4 +1,4 @@
-import { matchesItemSearch } from "../item-search.js";
+import { searchItems } from "../item-search.js";
 import { runItemImport } from "../item-import.js";
 import { addMissingColumn, cleanNumber, cleanText, openDatabase } from "./open.js";
 
@@ -35,10 +35,10 @@ export function closeItemsDb() {
 }
 
 export function getItems(query = "", limit = 100) {
-  const items = db.prepare(`
+  const items = searchItems(db.prepare(`
     SELECT id, name, rate, unit AS per FROM items
     ORDER BY name COLLATE NOCASE
-  `).all().filter((item) => matchesItemSearch(item.name, query));
+  `).all(), query);
   return Number.isInteger(limit) && limit > 0 ? items.slice(0, limit) : items;
 }
 

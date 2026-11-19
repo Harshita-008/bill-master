@@ -146,4 +146,34 @@ describe("ChallanEditorPage", () => {
       expect(saved[1]).toEqual(expect.objectContaining({ id: 3, toLine1: "Existing challan" }));
     });
   });
+
+  it("clears a box on the first Esc and asks before exiting on the next Esc", async () => {
+    const user = userEvent.setup();
+    render(
+      <MemoryRouter initialEntries={["/challans/new"]}>
+        <Routes>
+          <Route path="/" element={<p>Landing page</p>} />
+          <Route path="/challans/new" element={<ChallanEditorPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    const boxes = screen.getByLabelText("Number of boxes");
+    await user.type(boxes, "3");
+    await user.keyboard("{Escape}");
+    expect(boxes.value).toBe("");
+    expect(screen.queryByRole("dialog")).toBeNull();
+
+    await user.keyboard("{Escape}");
+    expect(screen.getByText("Do you want to exit?")).toBeTruthy();
+    expect(screen.getByText("Anything not saved on this challan will be lost.")).toBeTruthy();
+
+    // n stays on the challan, with the cursor back in the box
+    await user.keyboard("n");
+    expect(screen.queryByText("Do you want to exit?")).toBeNull();
+    await waitFor(() => expect(document.activeElement).toBe(boxes));
+
+    await user.keyboard("{Escape}y");
+    expect(await screen.findByText("Landing page")).toBeTruthy();
+  });
 });

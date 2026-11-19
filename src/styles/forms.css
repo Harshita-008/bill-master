@@ -227,6 +227,7 @@
 .confirm-dialog { width: min(420px, calc(100vw - 36px)); }
 .confirm-dialog .dialog-actions button { min-width: 84px; }
 .confirm-dialog .dialog-actions button span { color: inherit; font-size: 15px; }
+.dialog-hint { margin: 14px 0 0; color: var(--muted); font-size: 12px; text-align: right; }
 
 @media (max-width: 900px) {
   .editor-card { overflow-x: auto; }

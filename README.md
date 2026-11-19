@@ -63,8 +63,8 @@ without touching the others:
 | --- | --- |
 | `billmaster-bills.db` | Bills, their item lines and charges |
 | `billmaster-challans.db` | Challans |
-| `billmaster-items.db` | Items with rate and per, and ledger names |
 
+| `billmaster-items.db` | Items with rate and per, and ledger names |
 During development the files live in the project directory. Packaged
 installations keep them in the per-user `%APPDATA%\BillMaster` directory, which
 is kept when BillMaster is upgraded, reinstalled, or uninstalled. To clear one

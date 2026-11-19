@@ -19,6 +19,7 @@ export default function ItemAutocomplete({
   suggestionHost,
   onItemSelect = () => {},
   onItemDeleted = () => {},
+  onFocus = () => {},
 }) {
   const [options, setOptions] = useState([]);
   const [open, setOpen] = useState(false);
@@ -151,7 +152,10 @@ export default function ItemAutocomplete({
         value={value}
         aria-label={ariaLabel}
         onFocus={() => {
+          // an empty box starts fresh, so typing never renames the old item
           if (value.trim()) setOpen(true);
+          else setSelectedItem(null);
+          onFocus();
         }}
         onBlur={() => { blurTimer.current = setTimeout(() => setOpen(false), 120); }}
         onChange={(event) => {

@@ -1,6 +1,8 @@
 import { useRef } from "react";
 import { Trash2 } from "lucide-react";
 import ItemAutocomplete from "./ItemAutocomplete";
+import DuplicateItemDialog from "./DuplicateItemDialog";
+import useDuplicateItem from "../../hooks/useDuplicateItem";
 import { formatCurrency } from "../../utils/formatters";
 import { clearOnEscape, focusAtStart, moveBackAtStart, replaceWhenAtStart } from "../../utils/focus";
 
@@ -17,6 +19,34 @@ export default function ItemsSection({
   suggestionHost,
 }) {
   const rowRefs = useRef([]);
+  const duplicates = useDuplicateItem(items);
+  const duplicate = duplicates.duplicate;
+
+  const focusLater = (index, cell) => {
+    setTimeout(() => focusAtStart(rowRefs.current[index]?.[cell]), 0);
+  };
+
+  // yes: keep the item again
+  const keepDuplicate = () => {
+    duplicates.remember(duplicate.key, duplicate.name);
+    duplicates.close();
+    focusLater(duplicate.index, "quantity");
+  };
+
+  // no: clear the typed item
+  const clearDuplicate = () => {
+    ["itemName", "rate", "per"].forEach((field) => onUpdate(duplicate.key, field, ""));
+    duplicates.remember(duplicate.key, "");
+    duplicates.close();
+    focusLater(duplicate.index, "name");
+  };
+
+  // same entry: drop the new row and go to quantity of the old one
+  const goToSameEntry = () => {
+    onRemove(duplicate.key);
+    duplicates.close();
+    focusLater(duplicate.other > duplicate.index ? duplicate.other - 1 : duplicate.other, "quantity");
+  };
 
   const setCellRef = (index, cell, element) => {
     if (!rowRefs.current[index]) rowRefs.current[index] = {};
@@ -60,7 +90,10 @@ export default function ItemsSection({
                 previousInput={() => (
                   index === 0 ? previousInputRef.current : rowRefs.current[index - 1]?.per
                 )}
-                onEnter={() => focusAtStart(rowRefs.current[index]?.quantity)}
+                onFocus={() => duplicates.remember(item.key, item.itemName)}
+                onEnter={() => {
+                  if (!duplicates.check(item.key)) focusAtStart(rowRefs.current[index]?.quantity);
+                }}
                 onEmptyEnter={() => focusAtStart(firstChargeInputRef.current)}
                 ariaLabel={`Item name ${index + 1}`}
                 itemKey={item.key}
@@ -146,6 +179,14 @@ export default function ItemsSection({
       <div className="bill-grid total-row">
         <strong>Items total</strong><strong>{formatCurrency(total)}</strong><span />
       </div>
+      {duplicate && (
+        <DuplicateItemDialog
+          name={duplicate.name}
+          onYes={keepDuplicate}
+          onNo={clearDuplicate}
+          onSameEntry={goToSameEntry}
+        />
+      )}
     </section>
   );
 }
