@@ -70,6 +70,8 @@ export default function LedgerDialog({
         result = type === "item"
           ? await api.addItems([{ name: normalized, rate, per }])
           : await api.addLedger(normalized);
+        // like tally, a new item can not reuse a saved name
+        if (type === "item" && !result.added) return setError("Name already exists. Enter a different name.");
       }
       setName("");
       setError("");

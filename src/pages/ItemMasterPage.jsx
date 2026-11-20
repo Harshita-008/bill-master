@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { FileSpreadsheet, ListChecks, PackageOpen, Pencil, PencilLine, Plus, Search, Trash2, Upload } from "lucide-react";
 import LedgerDialog from "../components/bill/LedgerDialog";
 import MultipleItemEditor from "../components/items/MultipleItemEditor";
+import NameExistsDialog from "../components/items/NameExistsDialog";
 import BulkDeleteDialog from "../components/ui/BulkDeleteDialog";
 import EmptyState from "../components/ui/EmptyState";
 import PageHeader from "../components/ui/PageHeader";
@@ -20,6 +21,7 @@ export default function ItemMasterPage() {
   const [per, setPer] = useState("");
   const [query, setQuery] = useState("");
   const [message, setMessage] = useState("");
+  const [existingName, setExistingName] = useState("");
   const [editingItem, setEditingItem] = useState(null);
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
   const [bulkDeleting, setBulkDeleting] = useState(false);
@@ -48,19 +50,17 @@ export default function ItemMasterPage() {
       || draft.per.trim() !== String(item.per || "").trim();
   }).map((item) => ({ id: item.id, ...multipleEditDrafts[item.id] })), [items, multipleEditDrafts]);
 
-  const addNames = async (names) => {
-    const result = await api.addItems(names);
-    setMessage(
-      `${result.added} unique item${result.added === 1 ? "" : "s"} added`
-      + `${result.skipped ? `, ${result.skipped} duplicate or already saved` : ""}.`,
-    );
-    await loadItems();
-  };
-
   const handleManualAdd = async (event) => {
     event.preventDefault();
     if (!name.trim()) return;
-    await addNames([{ name, rate, per }]);
+    const result = await api.addItems([{ name, rate, per }]);
+    // name already saved: show the error and keep what was typed
+    if (!result.added) {
+      setExistingName(name.trim().replace(/s+/g, " "));
+      return;
+    }
+    setMessage("1 unique item added.");
+    await loadItems();
     setName("");
     setRate("");
     setPer("");
@@ -208,6 +208,18 @@ export default function ItemMasterPage() {
           <input ref={fileInput} className="visually-hidden" type="file" accept=".xlsx,.xls,.csv" onChange={handleFile} />
         </div>
       </div>
+      {existingName && (
+        <NameExistsDialog
+          name={existingName}
+          onClose={() => {
+            setExistingName("");
+            setTimeout(() => {
+              itemNameInputRef.current?.focus();
+              itemNameInputRef.current?.select();
+            }, 0);
+          }}
+        />
+      )}
       {message && <div className="info-banner">{message}<button onClick={() => setMessage("")}>×</button></div>}
       {!!items.length && (
         <>
