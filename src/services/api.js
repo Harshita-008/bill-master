@@ -234,6 +234,9 @@ const browserFallback = {
     window.print();
     return { success: true };
   },
+  async quitApp() {
+    window.close();
+  },
 };
 
 export const api = window.electronAPI || browserFallback;

@@ -1,7 +1,7 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import HomePage from "./HomePage";
 
 afterEach(cleanup);
@@ -31,5 +31,22 @@ describe("HomePage", () => {
     renderHome();
     await userEvent.setup().click(screen.getByRole("button", { name: /View challans/ }));
     expect(screen.getByText("Opened page")).toBeTruthy();
+  });
+
+  it("esc asks before closing, n stays and y closes the app", async () => {
+    const close = vi.spyOn(window, "close").mockImplementation(() => {});
+    const user = userEvent.setup();
+    renderHome();
+
+    await user.keyboard("{Escape}");
+    expect(screen.getByText("Do you want to exit?")).toBeTruthy();
+
+    await user.keyboard("n");
+    expect(screen.queryByText("Do you want to exit?")).toBeNull();
+    expect(close).not.toHaveBeenCalled();
+
+    await user.keyboard("{Escape}{ArrowRight}{Enter}");
+    expect(close).toHaveBeenCalled();
+    close.mockRestore();
   });
 });

@@ -84,6 +84,7 @@ function registerHandlers() {
     return loadPrinters(event.sender, force);
   });
   ipcMain.handle("print", (event, options) => printPage(event.sender, options));
+  ipcMain.handle("app:quit", () => app.quit());
 }
 
 function createWindow() {

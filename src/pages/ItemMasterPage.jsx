@@ -13,6 +13,7 @@ import { searchItems } from "../../electron/item-search.js";
 import { extractItems } from "../utils/itemImport";
 import { importMessage } from "../utils/importMessage";
 import { readWorkbookRows } from "../utils/readWorkbook";
+import { sameItemName } from "../utils/duplicateItem";
 
 export default function ItemMasterPage() {
   const [items, setItems] = useState([]);
@@ -56,7 +57,7 @@ export default function ItemMasterPage() {
     const result = await api.addItems([{ name, rate, per }]);
     // name already saved: show the error and keep what was typed
     if (!result.added) {
-      setExistingName(name.trim().replace(/s+/g, " "));
+      setExistingName(name.trim().replace(/\s+/g, " "));
       return;
     }
     setMessage("1 unique item added.");
@@ -159,10 +160,13 @@ export default function ItemMasterPage() {
               value={name}
               onChange={(event) => setName(event.target.value)}
               onKeyDown={(event) => {
-                if (event.key === "Enter") {
-                  event.preventDefault();
-                  itemRateInputRef.current?.focus();
-                }
+                if (event.key !== "Enter") return;
+                event.preventDefault();
+
+                // a saved name shows the error right away
+                const saved = name.trim() && items.find((item) => sameItemName(item.name, name));
+                if (saved) setExistingName(saved.name);
+                else itemRateInputRef.current?.focus();
               }}
               placeholder="Enter item name"
             />
@@ -212,11 +216,10 @@ export default function ItemMasterPage() {
         <NameExistsDialog
           name={existingName}
           onClose={() => {
+            // start again with an empty name box
             setExistingName("");
-            setTimeout(() => {
-              itemNameInputRef.current?.focus();
-              itemNameInputRef.current?.select();
-            }, 0);
+            setName("");
+            setTimeout(() => itemNameInputRef.current?.focus(), 0);
           }}
         />
       )}

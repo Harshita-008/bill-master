@@ -23,4 +23,5 @@ contextBridge.exposeInMainWorld("electronAPI", {
   deleteChallan: (id) => ipcRenderer.invoke("challans:delete", id),
   getPrinters: (force = false) => ipcRenderer.invoke("printers:list", force),
   print: (options) => ipcRenderer.invoke("print", options),
+  quitApp: () => ipcRenderer.invoke("app:quit"),
 });

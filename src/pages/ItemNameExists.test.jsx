@@ -16,7 +16,7 @@ const saveRoller = () => localStorage.setItem("billmaster.preview.items", JSON.s
 const savedCount = () => JSON.parse(localStorage.getItem("billmaster.preview.items")).length;
 
 describe("item name already exists", () => {
-  it("items page shows the error and keeps the typed name", async () => {
+  it("items page shows the error and empties the name box after ok", async () => {
     saveRoller();
     const user = userEvent.setup();
     render(<MemoryRouter><ItemMasterPage /></MemoryRouter>);
@@ -29,8 +29,32 @@ describe("item name already exists", () => {
     expect(savedCount()).toBe(1);
     await user.keyboard("{Enter}");
     expect(screen.queryByText("Name already exists")).toBeNull();
-    expect(nameBox.value).toBe("071 cartridge");
+    expect(nameBox.value).toBe("");
     await waitFor(() => expect(document.activeElement).toBe(nameBox));
+  });
+
+  it("enter on a saved name shows the error before moving to rate", async () => {
+    saveRoller();
+    const user = userEvent.setup();
+    render(<MemoryRouter><ItemMasterPage /></MemoryRouter>);
+    await screen.findByText("071 CARTRIDGE");
+
+    await user.type(screen.getByLabelText("Add an item manually"), "071 cartridge{Enter}");
+
+    expect(await screen.findByText("Name already exists")).toBeTruthy();
+    expect(document.activeElement).not.toBe(screen.getByLabelText("New item rate"));
+  });
+
+  it("enter on a new name moves to rate", async () => {
+    saveRoller();
+    const user = userEvent.setup();
+    render(<MemoryRouter><ItemMasterPage /></MemoryRouter>);
+    await screen.findByText("071 CARTRIDGE");
+
+    await user.type(screen.getByLabelText("Add an item manually"), "072 CARTRIDGE{Enter}");
+
+    expect(document.activeElement).toBe(screen.getByLabelText("New item rate"));
+    expect(screen.queryByText("Name already exists")).toBeNull();
   });
 
   it("a new name is still added", async () => {
