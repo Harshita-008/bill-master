@@ -1,7 +1,7 @@
 {
   "name": "bill-master",
   "private": true,
-  "version": "0.0.46",
+  "version": "0.0.47",
   "description": "A modern offline billing and printing application.",
   "author": "BillMaster",
   "type": "module",
@@ -65,7 +65,12 @@
       "icon": "build/icon.ico"
     },
     "nsis": {
-      "deleteAppDataOnUninstall": false
+      "deleteAppDataOnUninstall": false,
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true,
+      "shortcutName": "BillMaster"
     }
   }
 }
