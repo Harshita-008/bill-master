@@ -8,13 +8,14 @@
 .challan-editor-main { min-width: 0; }
 .challan-editor-card {
   overflow: hidden;
-  border: 1px solid color-mix(in srgb, var(--purple) 24%, var(--border));
-  border-radius: 22px;
+  border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--border));
+  border-radius: var(--radius);
   background: var(--surface);
+  color: var(--text);
   box-shadow: var(--shadow), 0 0 50px var(--glow-soft), inset 0 1px rgba(255,255,255,.04);
 }
 .challan-form-top { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 28px; padding: 28px 32px; }
-.challan-field-title { display: flex; align-items: center; gap: 9px; margin-bottom: 10px; color: var(--purple-bright); }
+.challan-field-title { display: flex; align-items: center; gap: 9px; margin-bottom: 10px; color: var(--accent-strong); }
 .challan-field-title strong { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
 .challan-to-fields > input,
 .challan-date-grid input,
@@ -22,7 +23,7 @@
 .challan-by-field input {
   height: 46px;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--radius);
   outline: 0;
   color: var(--text);
   background: var(--surface-2);
@@ -33,7 +34,7 @@
   width: 100%;
   height: 46px;
   padding: 0 13px 0 38px;
-  border-radius: 10px;
+  border-radius: var(--radius);
   font-size: 16px;
   font-weight: 400;
 }
@@ -46,8 +47,8 @@
 .challan-date-grid input:focus,
 .challan-statement-field input:focus,
 .challan-by-field input:focus {
-  border-color: var(--purple);
-  box-shadow: 0 0 0 3px var(--purple-soft), 0 0 22px var(--glow-soft);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft), 0 0 22px var(--glow-soft);
 }
 .challan-statement-field {
   min-height: 104px;
@@ -60,7 +61,7 @@
   gap: 12px;
   font-size: 20px;
 }
-.challan-statement-field svg { color: var(--purple-bright); }
+.challan-statement-field svg { color: var(--accent-strong); }
 .challan-statement-field input { width: 110px; padding: 0 12px; text-align: center; font-size: 18px; font-weight: 750; }
 .challan-by-field { min-height: 104px; padding: 24px 32px; display: flex; align-items: center; gap: 10px; }
 .challan-by-field strong { font-size: 18px; }
@@ -129,9 +130,9 @@
 .challan-list-row:hover,
 .challan-list-row:focus {
   outline: none;
-  color: var(--purple-bright);
-  background: var(--purple-soft);
-  box-shadow: inset 3px 0 var(--purple), 0 0 24px var(--glow-soft);
+  color: var(--accent-strong);
+  background: var(--accent-soft);
+  box-shadow: inset 3px 0 var(--accent), 0 0 24px var(--glow-soft);
 }
 .challan-list-row > span { color: var(--muted); }
 .challan-list-row > svg { justify-self: end; color: var(--faint); }

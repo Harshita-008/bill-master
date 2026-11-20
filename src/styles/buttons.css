@@ -1,0 +1,57 @@
+.primary-button, .secondary-button, .danger-button {
+  min-height: 44px;
+  border-radius: var(--radius);
+  padding: 0 17px;
+  border: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  font-weight: 700;
+  transition: transform .18s ease, background .18s ease;
+}
+
+.primary-button {
+  background: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: 0 10px 28px var(--glow);
+}
+.primary-button:hover {
+  background: color-mix(in srgb, var(--accent) 88%, white);
+  box-shadow: 0 14px 34px var(--glow);
+  transform: translateY(-2px);
+}
+
+.secondary-button {
+  background: var(--surface-2);
+  border-color: var(--border);
+  color: var(--text);
+}
+.secondary-button:hover { background: var(--surface-3); }
+
+.danger-button {
+  background: color-mix(in srgb, var(--danger) 10%, var(--surface));
+  border-color: color-mix(in srgb, var(--danger) 30%, var(--border));
+  color: var(--danger);
+}
+.danger-button:hover {
+  background: color-mix(in srgb, var(--danger) 16%, var(--surface));
+  box-shadow: 0 10px 26px color-mix(in srgb, var(--danger) 18%, transparent);
+}
+
+.icon-button {
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius);
+  transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+.icon-button:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 22px var(--glow-soft);
+  transform: translateY(-1px);
+}

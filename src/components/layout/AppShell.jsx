@@ -3,6 +3,7 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, Moon, Sun } from "lucide-react";
 import { useTheme } from "../../context/theme-context";
 import { clearEditorDrafts } from "../../utils/editorDrafts";
+import TodayChip from "./TodayChip";
 
 export default function AppShell() {
   const { theme, toggleTheme } = useTheme();
@@ -67,13 +68,14 @@ export default function AppShell() {
   }, [location.pathname]);
 
   return (
-    <div className={`app-shell ${isPrint ? "print-route" : ""} ${isBillDetail ? "bill-detail-route" : ""}`}>
+    <div className={`app-shell ${isHome ? "home-route" : ""} ${isPrint ? "print-route" : ""} ${isBillDetail ? "bill-detail-route" : ""}`}>
       <header className="topbar no-print">
         <button className="brand" onClick={() => navigate("/")} aria-label="BillMaster home">
           <img className="brand-mark" src="./billmaster-icon.png" alt="" />
           <span>BillMaster</span>
         </button>
         <div className="topbar-actions">
+          {isHome && <TodayChip />}
           {!isHome && (
             <button className="icon-button back-button" onClick={goBack} aria-label="Go back">
               <ArrowLeft size={19} />

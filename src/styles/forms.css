@@ -11,39 +11,40 @@
 }
 .editor-page { width: 100%; min-width: 0; }
 .editor-card {
-  border: 1px solid color-mix(in srgb, var(--purple) 20%, var(--border));
+  border: 1px solid color-mix(in srgb, var(--accent) 20%, var(--border));
   background: var(--surface);
-  border-radius: 22px;
+  color: var(--text);
+  border-radius: var(--radius);
   box-shadow: var(--shadow), 0 0 55px var(--glow-soft), inset 0 1px rgba(255,255,255,.035);
   overflow: visible;
 }
 .ledger-autocomplete > input {
-  width: 100%; height: 52px; padding: 0 14px 0 42px; border-radius: 11px;
+  width: 100%; height: 52px; padding: 0 14px 0 42px; border-radius: var(--radius);
   border: 1px solid var(--border); background: var(--surface-2); color: var(--text);
   font-size: 20px; font-weight: 700;
 }
-.ledger-autocomplete > input:focus { border-color: var(--purple); box-shadow: 0 0 0 3px var(--purple-soft), 0 0 22px var(--glow-soft); }
+.ledger-autocomplete > input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft), 0 0 22px var(--glow-soft); }
 .ledger-autocomplete .input-icon { top: 17px; }
 .manual-add input, .print-controls input, .print-controls select {
-  width: 100%; height: 44px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--border);
+  width: 100%; height: 44px; padding: 0 12px; border-radius: var(--radius); border: 1px solid var(--border);
   background: var(--surface-2); color: var(--text); outline: 0;
 }
 .manual-add input:focus, .print-controls input:focus, .print-controls select:focus {
-  border-color: var(--purple);
-  box-shadow: 0 0 0 3px var(--purple-soft), 0 0 22px var(--glow-soft);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft), 0 0 22px var(--glow-soft);
 }
-.delete-button { width: 36px; height: 36px; border-radius: 9px; border: 0; background: transparent; color: var(--faint); display: grid; place-items: center; }
+.delete-button { width: 36px; height: 36px; border-radius: var(--radius); border: 0; background: transparent; color: var(--faint); display: grid; place-items: center; }
 .delete-button:hover { color: var(--danger); background: color-mix(in srgb, var(--danger) 10%, transparent); }
 .autocomplete { position: relative; }
 .autocomplete > input { padding-left: 38px; }
 .input-icon { position: absolute; left: 12px; top: 13px; color: var(--faint); z-index: 1; }
 .autocomplete-menu {
   position: absolute; top: calc(100% + 6px); left: 0; right: 0; max-height: 230px; overflow: auto; z-index: 50;
-  background: var(--surface-2); border: 1px solid color-mix(in srgb, var(--purple) 28%, var(--border));
-  border-radius: 11px; padding: 5px; box-shadow: var(--shadow), 0 0 30px var(--glow-soft);
+  background: var(--surface-2); color: var(--text); border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--border));
+  border-radius: var(--radius); padding: 5px; box-shadow: var(--shadow), 0 0 30px var(--glow-soft);
 }
-.autocomplete-menu button { display: block; width: 100%; border: 0; border-radius: 7px; background: transparent; padding: 10px; text-align: left; }
-.autocomplete-menu button:hover, .autocomplete-menu button.active { background: var(--purple-soft); color: var(--purple-bright); }
+.autocomplete-menu button { display: block; width: 100%; border: 0; border-radius: var(--radius); background: transparent; padding: 10px; text-align: left; }
+.autocomplete-menu button:hover, .autocomplete-menu button.active { background: var(--accent-soft); color: var(--accent-strong); }
 .autocomplete-menu p { margin: 0; padding: 13px; color: var(--muted); font-size: 13px; }
 .autocomplete-menu .autocomplete-error, .autocomplete-inline-error { color: var(--danger); font-size: 12px; }
 .autocomplete-inline-error { position: absolute; z-index: 2; margin: 4px 0 0; }
@@ -61,11 +62,12 @@
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
   overflow: hidden;
-  border: 1px solid color-mix(in srgb, var(--purple) 35%, var(--border));
-  border-radius: 22px;
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+  border-radius: var(--radius);
+  color: var(--text);
   background:
     radial-gradient(circle at 100% 0, var(--glow-soft), transparent 34%),
-    color-mix(in srgb, var(--surface) 96%, var(--purple-soft));
+    color-mix(in srgb, var(--surface) 96%, var(--accent-soft));
   box-shadow: var(--shadow), 0 0 45px var(--glow-soft), inset 0 1px rgba(255,255,255,.04);
 }
 .suggestion-panel-heading {
@@ -81,9 +83,9 @@
   height: 42px;
   display: grid;
   place-items: center;
-  border-radius: 12px;
-  color: var(--purple-bright);
-  background: var(--purple-soft);
+  border-radius: var(--radius);
+  color: var(--accent-strong);
+  background: var(--accent-soft);
   box-shadow: inset 0 0 20px var(--glow-soft);
 }
 .suggestion-panel-heading > div { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
@@ -97,9 +99,9 @@
 .suggestion-panel-heading strong { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 15px; }
 .suggestion-count {
   padding: 5px 8px;
-  border-radius: 999px;
-  color: var(--purple-bright);
-  background: var(--purple-soft);
+  border-radius: var(--radius);
+  color: var(--accent-strong);
+  background: var(--accent-soft);
   font-size: 10px;
   font-weight: 800;
   white-space: nowrap;
@@ -109,7 +111,7 @@
   overflow-y: auto;
   padding: 10px;
   scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--purple) 55%, var(--border)) transparent;
+  scrollbar-color: color-mix(in srgb, var(--accent) 55%, var(--border)) transparent;
 }
 .suggestion-list button {
   width: 100%;
@@ -120,18 +122,18 @@
   gap: 11px;
   padding: 8px 10px;
   border: 1px solid transparent;
-  border-radius: 11px;
+  border-radius: var(--radius);
   background: transparent;
   text-align: left;
   transition: background .15s, border-color .15s, transform .15s;
 }
 .suggestion-list button:hover {
-  background: color-mix(in srgb, var(--purple-soft) 68%, transparent);
+  background: color-mix(in srgb, var(--accent-soft) 68%, transparent);
 }
 .suggestion-list button.active {
-  color: var(--purple-bright);
-  border-color: color-mix(in srgb, var(--purple) 52%, var(--border));
-  background: var(--purple-soft);
+  color: var(--accent-strong);
+  border-color: color-mix(in srgb, var(--accent) 52%, var(--border));
+  background: var(--accent-soft);
   box-shadow: 0 0 24px var(--glow-soft), inset 0 0 20px var(--glow-soft);
   transform: translateX(2px);
 }
@@ -147,7 +149,7 @@
   font-weight: 800;
   font-variant-numeric: tabular-nums;
 }
-.suggestion-list button.active .suggestion-option-index { color: var(--purple-bright); }
+.suggestion-list button.active .suggestion-option-index { color: var(--accent-strong); }
 .suggestion-empty {
   height: 100%;
   display: flex;
@@ -160,7 +162,7 @@
   text-align: center;
   font-size: 13px;
 }
-.suggestion-empty svg { color: var(--purple-bright); }
+.suggestion-empty svg { color: var(--accent-strong); }
 .suggestion-panel .autocomplete-error { margin: 8px; color: var(--danger); font-size: 12px; }
 .suggestion-panel-footer {
   display: flex;
@@ -180,7 +182,7 @@
   display: inline-grid;
   place-items: center;
   border: 1px solid var(--border);
-  border-radius: 5px;
+  border-radius: var(--radius);
   color: var(--muted);
   background: var(--surface-2);
   box-shadow: 0 2px 0 var(--border);
@@ -193,20 +195,20 @@
   background: rgba(8, 5, 12, .68); backdrop-filter: blur(12px);
 }
 .ledger-dialog {
-  width: min(480px, 100%); padding: 25px; border-radius: 19px;
-  border: 1px solid color-mix(in srgb, var(--purple) 35%, var(--border));
-  background: var(--surface); box-shadow: var(--shadow), 0 0 50px var(--glow-soft);
+  width: min(480px, 100%); padding: 25px; border-radius: var(--radius);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+  background: var(--surface); color: var(--text); box-shadow: var(--shadow), 0 0 50px var(--glow-soft);
 }
 .dialog-heading { display: grid; grid-template-columns: auto 1fr auto; align-items: start; gap: 13px; margin-bottom: 24px; }
 .dialog-heading h2 { margin: 1px 0 5px; font-size: 20px; }
 .dialog-heading p { margin: 0; color: var(--muted); font-size: 13px; }
-.dialog-icon { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; color: var(--purple-bright); background: var(--purple-soft); }
+.dialog-icon { width: 42px; height: 42px; border-radius: var(--radius); display: grid; place-items: center; color: var(--accent-strong); background: var(--accent-soft); }
 .ledger-dialog > label { display: block; color: var(--muted); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 8px; }
 .ledger-dialog > input {
   width: 100%; height: 48px; padding: 0 13px; color: var(--text); background: var(--surface-2);
-  border: 1px solid var(--border); border-radius: 10px; outline: 0;
+  border: 1px solid var(--border); border-radius: var(--radius); outline: 0;
 }
-.ledger-dialog > input:focus { border-color: var(--purple); box-shadow: 0 0 0 3px var(--purple-soft); }
+.ledger-dialog > input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
 .item-detail-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
 .item-detail-fields label { display: flex; flex-direction: column; gap: 8px; }
 .item-detail-fields label > span {
@@ -214,9 +216,9 @@
 }
 .item-detail-fields input {
   width: 100%; height: 46px; padding: 0 12px; color: var(--text); background: var(--surface-2);
-  border: 1px solid var(--border); border-radius: 10px; outline: 0;
+  border: 1px solid var(--border); border-radius: var(--radius); outline: 0;
 }
-.item-detail-fields input:focus { border-color: var(--purple); box-shadow: 0 0 0 3px var(--purple-soft); }
+.item-detail-fields input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
 .dialog-error { color: var(--danger); font-size: 12px; margin: 9px 0 0; }
 .dialog-actions { display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-top: 22px; }
 .dialog-actions span { color: var(--faint); font-size: 11px; }

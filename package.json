@@ -16,6 +16,7 @@
   },
   "main": "electron/main.js",
   "dependencies": {
+    "@fontsource/ibm-plex-sans": "^5.3.0",
     "better-sqlite3": "^12.11.1",
     "lucide-react": "^1.24.0",
     "pdf-to-printer": "^5.8.1",

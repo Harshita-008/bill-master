@@ -1,97 +1,207 @@
+/* home keeps its soft see-through header and round buttons */
+.home-route .topbar {
+  border-top: 0;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(20px);
+}
+.home-route .icon-button { border-radius: 50%; }
+
 /* home page fits the window, no scroll */
-.app-main.home-main { width: min(1296px, 92vw); padding: 32px 0; }
+.app-main.home-main { width: min(1296px, 92vw); padding: 24px 0; }
 
-.bento {
-  height: calc(100vh - 72px - 64px);
-  min-height: 480px;
+.home {
+  min-height: calc(100vh - 72px - 48px);
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  grid-template-rows: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 40px;
 }
 
-.bento-hero, .bento-tile {
-  border: 1px solid var(--border);
-  color: var(--text);
-  text-align: left;
-  transition: border-color .2s, transform .2s, background .2s, box-shadow .2s;
-}
-.bento-hero:hover, .bento-tile:hover {
-  transform: translateY(-3px);
-  border-color: color-mix(in srgb, var(--purple) 58%, var(--border));
-  box-shadow: 0 18px 45px rgba(0,0,0,.14), 0 0 32px var(--glow-soft);
-}
-
-/* big create bill tile */
-.bento-hero {
-  grid-column: span 2;
-  grid-row: span 2;
-  position: relative;
-  overflow: hidden;
-  padding: clamp(28px, 3vw, 44px);
-  border-radius: 28px;
+/* left side: title and buttons */
+.home-hero {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  background:
-    radial-gradient(circle at 84% 30%, rgba(146,76,255,.28), transparent 40%),
-    linear-gradient(135deg, var(--surface), color-mix(in srgb, var(--surface) 80%, #542a7d));
-  box-shadow: var(--shadow), 0 0 70px var(--glow-soft);
-}
-.bento-orb {
-  position: absolute; width: 300px; height: 300px; right: -70px; top: -70px;
-  border-radius: 50%; border: 1px solid rgba(255,255,255,.07); background: rgba(137,74,230,.08);
-}
-.bento-hero-title, .bento-hero-action { position: relative; }
-.bento-hero-title { display: flex; flex-direction: column; gap: 16px; }
-.bento-hero-title strong { font-size: clamp(56px, 6vw, 84px); line-height: .95; letter-spacing: -4.5px; }
-.bento-badge {
-  width: fit-content; padding: 8px 13px; border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--purple) 28%, var(--border));
-  background: color-mix(in srgb, var(--purple-soft) 58%, transparent);
-  color: var(--muted); font-size: 13px; font-weight: 700; letter-spacing: .055em; text-transform: uppercase;
-}
-.bento-badge span {
-  display: inline-block; width: 6px; height: 6px; margin-right: 7px; border-radius: 50%;
-  background: var(--purple-bright); box-shadow: 0 0 12px var(--glow); vertical-align: 2px;
-}
-.bento-hero-action { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-.bento-hero-action strong { font-size: 24px; }
-.bento-hero-arrow {
-  width: 60px; height: 60px; flex: none; border-radius: 18px; display: grid; place-items: center;
-  color: #fff; background: linear-gradient(135deg, var(--purple-bright), var(--purple));
-  box-shadow: 0 10px 28px var(--glow);
+  align-items: flex-start;
 }
 
-/* other tiles */
-.bento-tile {
-  padding: 24px;
-  border-radius: 24px;
-  background: var(--surface);
+.home-badge {
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--page-accent);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.home-title {
+  margin: 20px 0 16px;
+  font-size: clamp(72px, 9vw, 124px);
+  font-weight: 700;
+  line-height: .85;
+  letter-spacing: -0.055em;
+}
+
+.home-text {
+  margin: 0;
+  color: var(--page-muted);
+  font-size: 19px;
+}
+
+.home-create {
+  margin-top: 28px;
+  padding: 14px 16px 14px 28px;
+  border: 0;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 19px;
+  font-weight: 700;
+  box-shadow: 0 20px 40px -18px var(--glow);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.home-create:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 24px 44px -16px var(--glow);
+}
+
+.home-create-arrow {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--accent-ink);
+  color: var(--accent);
+}
+
+/* small pill buttons for the other pages */
+.quick-links {
+  max-width: 620px;
+  margin-top: 40px;
   display: flex;
-  gap: 18px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
-.bento-tile:hover { background: var(--surface-2); }
-.tile-wide { grid-column: span 2; align-items: center; }
-.tile-small { flex-direction: column; justify-content: space-between; }
-.tile-small .tile-arrow { display: none; }
-.tile-accent {
-  border-color: color-mix(in srgb, var(--purple) 38%, var(--border));
-  background: linear-gradient(135deg, var(--purple-soft), var(--surface));
-}
-.tile-icon {
-  width: 52px; height: 52px; flex: none; border-radius: 15px; display: grid; place-items: center;
-  color: var(--purple-bright); background: var(--purple-soft); box-shadow: inset 0 0 18px var(--glow-soft);
-}
-.tile-copy { flex: 1; display: flex; flex-direction: column; gap: 6px; }
-.tile-copy strong { font-size: 19px; }
-.tile-copy small { color: var(--muted); font-size: 14px; line-height: 1.4; }
-.tile-arrow { color: var(--faint); flex: none; }
-.tile-accent .tile-arrow { color: var(--purple-bright); }
 
-/* small screens stack the tiles */
-@media (max-width: 850px) {
-  .bento { height: auto; grid-template-columns: 1fr; grid-template-rows: none; }
-  .bento-hero, .tile-wide { grid-column: auto; grid-row: auto; }
-  .bento-hero { min-height: 320px; }
+.quick-link {
+  padding: 8px 16px 8px 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 700;
+  transition: transform .18s ease, border-color .18s ease;
+}
+.quick-link:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+}
+
+.quick-link-icon {
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--hue) 16%, var(--surface));
+  color: var(--hue);
+}
+
+/* right side: drawn bill */
+.bill-art { position: relative; height: 560px; }
+
+.bill-art-glow {
+  position: absolute;
+  inset: 40px 30px;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent) 28%, transparent), transparent 65%);
+}
+
+.bill-art-back {
+  position: absolute;
+  left: 90px;
+  top: 80px;
+  width: 300px;
+  height: 400px;
+  border-radius: 22px;
+  background: color-mix(in srgb, var(--surface) 55%, var(--accent));
+  opacity: .5;
+  transform: rotate(-9deg);
+}
+
+.bill-art-paper {
+  position: absolute;
+  left: 120px;
+  top: 60px;
+  width: 300px;
+  height: 420px;
+  padding: 30px;
+  border-radius: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: #ffffff;
+  box-shadow: 0 40px 70px -30px rgba(0, 0, 0, .45);
+  transform: rotate(4deg);
+}
+
+.paper-row { display: flex; justify-content: space-between; }
+.paper-total { margin-top: 14px; }
+
+.paper-line {
+  height: 8px;
+  border-radius: 4px;
+  background: #d1d5db;
+}
+.paper-dark { height: 12px; background: #1f2937; }
+.paper-accent { height: 12px; background: var(--accent); }
+
+.paper-rule {
+  height: 1px;
+  margin: 8px 0;
+  background: #e5e7eb;
+}
+
+/* small labels floating near the bill */
+.bill-art-badge {
+  position: absolute;
+  padding: 10px 16px 10px 10px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 700;
+  box-shadow: 0 20px 40px -24px rgba(0, 0, 0, .5);
+}
+.badge-items { left: 0; top: 330px; transform: rotate(-4deg); }
+.badge-challan { right: 10px; top: 120px; transform: rotate(5deg); }
+
+/* date shown in the top bar on the home page */
+.today-chip {
+  padding: 9px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* small screens drop the drawing */
+@media (max-width: 900px) {
+  .home { grid-template-columns: 1fr; }
+  .bill-art { display: none; }
 }

@@ -19,11 +19,12 @@
   gap: 16px;
   padding: 5px 16px;
   border: 1px solid var(--border);
-  border-radius: 12px;
-  background: linear-gradient(135deg, var(--purple-soft), var(--surface));
+  border-radius: var(--radius);
+  color: var(--text);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 18%, var(--surface)), var(--surface));
 }
 .voucher-title { display: flex; align-items: center; gap: 14px; }
-.voucher-type { padding: 2px 14px; border-radius: 8px; background: var(--purple); color: #fff; font-weight: 800; }
+.voucher-type { padding: 2px 14px; border-radius: var(--radius); background: var(--accent); color: var(--accent-ink); font-weight: 800; }
 .voucher-no { color: var(--muted); }
 .voucher-no strong { margin-left: 6px; color: var(--text); font-variant-numeric: tabular-nums; }
 .voucher-date { justify-self: end; display: flex; align-items: baseline; gap: 10px; }
@@ -37,7 +38,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border-radius: 16px;
+  border-radius: var(--radius);
   box-shadow: var(--shadow);
 }
 
@@ -49,7 +50,7 @@
 .voucher .ledger-autocomplete > input {
   height: 32px;
   padding-left: 8px;
-  border-radius: 8px;
+  border-radius: var(--radius);
   border-color: transparent;
   border-bottom-color: var(--border);
   background: transparent;
@@ -81,13 +82,13 @@
 .bill-row { min-height: 20px; position: relative; }
 .item-row-group:focus-within .bill-row,
 .charges-grid.bill-row:focus-within,
-.previous-amount-row:focus-within { background: var(--purple-soft); }
+.previous-amount-row:focus-within { background: var(--accent-soft); }
 .bill-row input, .previous-amount-row input {
   width: 100%;
   height: 20px;
   padding: 0 6px;
   border: 1px solid transparent;
-  border-radius: 4px;
+  border-radius: var(--radius);
   outline: 0;
   background: transparent;
   box-shadow: inset 0 -1px 0 var(--border);
@@ -97,9 +98,9 @@
 .bill-row input { scroll-margin-block: 8px; }
 .bill-row input:hover, .previous-amount-row input:hover { border-color: var(--border); }
 .bill-row input:focus, .previous-amount-row input:focus {
-  border-color: var(--purple);
+  border-color: var(--accent);
   background: var(--surface);
-  box-shadow: 0 0 0 2px var(--purple-soft);
+  box-shadow: 0 0 0 2px var(--accent-soft);
 }
 .bill-row .input-icon { display: none; }
 .bill-row .autocomplete > input { padding-left: 6px; font-weight: 600; }
@@ -114,7 +115,7 @@
 .item-row-actions { display: flex; align-items: center; justify-content: flex-end; gap: 2px; opacity: .4; transition: opacity .15s; }
 .item-row-group:hover .item-row-actions,
 .item-row-group:focus-within .item-row-actions { opacity: 1; }
-.item-row-actions .delete-button, .charges-grid .delete-button { width: 24px; height: 20px; border-radius: 6px; }
+.item-row-actions .delete-button, .charges-grid .delete-button { width: 24px; height: 20px; border-radius: var(--radius); }
 .item-row-actions .delete-button svg, .charges-grid .delete-button svg { width: 15px; height: 15px; }
 
 /* sub totals sit under the amount column */
@@ -149,13 +150,13 @@
   gap: 8px;
   align-items: center;
   padding: 6px 22px;
-  border-top: 3px double color-mix(in srgb, var(--purple) 45%, var(--border));
-  background: color-mix(in srgb, var(--purple-soft) 60%, var(--surface));
+  border-top: 3px double color-mix(in srgb, var(--accent) 45%, var(--border));
+  background: color-mix(in srgb, var(--accent-soft) 60%, var(--surface));
 }
 .grand-total div { grid-column: 1 / 5; display: flex; align-items: baseline; justify-content: flex-end; gap: 12px; }
 .grand-total span { font-weight: 800; }
 .grand-total small { color: var(--muted); font-size: 12px; }
-.grand-total > strong { grid-column: 5; padding: 0 8px; text-align: right; color: var(--purple-bright); font-size: 18px; font-variant-numeric: tabular-nums; }
+.grand-total > strong { grid-column: 5; padding: 0 8px; text-align: right; color: var(--accent-strong); font-size: 18px; font-variant-numeric: tabular-nums; }
 
 /* bottom bar: keys on the left, buttons on the right */
 .voucher .editor-actions {
@@ -168,7 +169,7 @@
 .voucher .editor-actions button { min-height: 34px; flex: none; white-space: nowrap; }
 .voucher-keys { margin: 0 auto 0 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 6px 16px; color: var(--muted); font-size: 12px; }
 .voucher-keys kbd {
-  margin-right: 5px; padding: 2px 6px; border: 1px solid var(--border); border-radius: 5px;
+  margin-right: 5px; padding: 2px 6px; border: 1px solid var(--border); border-radius: var(--radius);
   background: var(--surface); box-shadow: 0 2px 0 var(--border); color: var(--text); font: inherit; font-weight: 700;
 }
 
@@ -185,7 +186,7 @@
 }
 .voucher .suggestion-rail:empty { display: none; }
 .voucher .suggestion-panel {
-  border-radius: 12px;
+  border-radius: var(--radius);
   background: var(--surface);
   box-shadow: -12px 0 40px rgba(0, 0, 0, .25), var(--shadow);
 }
@@ -193,15 +194,15 @@
   grid-template-columns: minmax(0, 1fr) auto;
   padding: 6px 12px;
   border-bottom: 0;
-  background: var(--purple);
-  color: #fff;
+  background: var(--accent);
+  color: var(--accent-ink);
 }
 .voucher .suggestion-panel-icon,
 .voucher .suggestion-panel-heading strong,
 .voucher .suggestion-option-index,
 .voucher .suggestion-panel-footer { display: none; }
-.voucher .suggestion-panel-heading > div > span { color: #fff; font-size: 14px; font-weight: 600; letter-spacing: 0; text-transform: none; }
-.voucher .suggestion-count { padding: 0; background: none; color: rgba(255,255,255,.8); font-size: 11px; }
+.voucher .suggestion-panel-heading > div > span { color: var(--accent-ink); font-size: 14px; font-weight: 600; letter-spacing: 0; text-transform: none; }
+.voucher .suggestion-count { padding: 0; background: none; color: color-mix(in srgb, var(--accent-ink) 75%, transparent); font-size: 11px; }
 
 /* one tight line per name, like tally */
 .voucher .suggestion-list { padding: 4px 0; }
@@ -219,8 +220,8 @@
   transform: none;
 }
 .voucher .suggestion-list button > span:last-child { font-weight: 500; }
-.voucher .suggestion-list button:hover { background: var(--purple-soft); }
-.voucher .suggestion-list button.active { background: var(--purple); color: #fff; box-shadow: none; transform: none; }
+.voucher .suggestion-list button:hover { background: var(--accent-soft); }
+.voucher .suggestion-list button.active { background: var(--accent); color: var(--accent-ink); box-shadow: none; transform: none; }
 
 /* smaller windows get tighter columns */
 @media (max-width: 1250px) {
