@@ -63,8 +63,8 @@ without touching the others:
 | --- | --- |
 | `billmaster-bills.db` | Bills, their item lines and charges |
 | `billmaster-challans.db` | Challans |
-
 | `billmaster-items.db` | Items with rate and per, and ledger names |
+
 During development the files live in the project directory. Packaged
 installations keep them in the per-user `%APPDATA%\BillMaster` directory, which
 is kept when BillMaster is upgraded, reinstalled, or uninstalled. To clear one
@@ -92,3 +92,23 @@ public/     Browser-facing static assets
 build/      Application icon assets used by electron-builder
 scripts/    Local database and import maintenance scripts
 ```
+
+## Planned improvements
+
+- **Inventory:** keep a stock count for every item. Billed quantities are
+  deducted automatically, restocked quantities are added by hand, and items
+  running low are flagged so they can be reordered in time.
+- **Reports:** monthly sales totals, the highest billed ledgers, and the most
+  sold items, built from the bills already saved in the app.
+- **Reliability on older laptops:** a time limit on the printer paper check
+  that runs at startup, so a printer that is off or disconnected never slows
+  the system down, and automatic updates so new versions install themselves.
+- **A product for any shop:** BillMaster was first built for one shop, and
+  using it every day showed the real problems small shops face with billing.
+  The goal is a product where any shop can be onboarded, with one common base
+  for billing, challans, item search, saved records, and printing, and each
+  shop's own customisations on top, such as its name and logo, item list
+  imported from Excel, bill layout, and printer setup.
+- **Cloud backup:** a daily automatic backup of bills, challans, items, and
+  stock to the cloud with one click restore, so records are safe if the laptop
+  fails and can be checked from another device.
