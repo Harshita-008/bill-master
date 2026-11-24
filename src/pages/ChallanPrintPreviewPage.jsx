@@ -12,6 +12,7 @@ import {
   rememberPrinter,
 } from "../utils/printerCache";
 import { CHALLAN_COPIES_KEY, readCopies, saveCopies } from "../utils/savedCopies";
+import { recordActivity } from "../utils/recordActivity";
 
 export default function ChallanPrintPreviewPage() {
   const navigate = useNavigate();
@@ -101,6 +102,7 @@ export default function ChallanPrintPreviewPage() {
     setCopies(String(printCopies));
     setStatus("Sending to printer…");
     const result = await api.print({ pageSize, copies: printCopies, deviceName });
+    if (result.success) recordActivity("challan", "print", { recordId: challan.id });
     setStatus(result.success
       ? result.usedSystemDialog
         ? "Printed using the Windows print settings window."

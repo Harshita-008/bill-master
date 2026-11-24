@@ -5,11 +5,14 @@ import BillForm from "../components/bill/BillForm";
 import VoucherHeader from "../components/bill/VoucherHeader";
 import VoucherKeys from "../components/bill/VoucherKeys";
 import ExitDialog from "../components/ui/ExitDialog";
+import useActivityTimer from "../hooks/useActivityTimer";
 import useConfirmExit from "../hooks/useConfirmExit";
+import { beginEditorSession, startSession } from "../utils/activitySession";
 import { clearEditorDrafts } from "../utils/editorDrafts";
 import { api } from "../services/api";
 import { hydrateBill } from "../utils/bill";
 import { focusAtStart } from "../utils/focus";
+import { recordActivity } from "../utils/recordActivity";
 
 export default function BillEditorPage() {
   const { id } = useParams();
@@ -41,6 +44,9 @@ export default function BillEditorPage() {
   const [formVersion, setFormVersion] = useState(0);
   const [suggestionHost, setSuggestionHost] = useState(null);
   const exit = useConfirmExit();
+  // runs once when the editor opens, a new bill starts being timed
+  useState(() => beginEditorSession("bill", Boolean(id), location.state?.fromPreview));
+  useActivityTimer("bill");
   const leaveToHome = useCallback(() => {
     clearEditorDrafts(location.pathname);
     navigate("/", { replace: true });
@@ -90,6 +96,7 @@ export default function BillEditorPage() {
           : undefined;
       const bill = { ...currentBill, id: existingId };
       const result = await api.saveBill(bill);
+      recordActivity("bill", "save", { items: bill.items.length, total: bill.grandTotal, recordId: result.billId });
       const savedBill = { ...bill, id: result.billId, createdAt: initialBill?.createdAt };
       const savedDraft = { ...currentDraft, id: result.billId, createdAt: initialBill?.createdAt };
       openPreview(savedBill, savedDraft, `/bills/${result.billId}/edit`, result.billId);
@@ -108,6 +115,7 @@ export default function BillEditorPage() {
     setCurrentDraft(null);
     setError("");
     setFormVersion((version) => version + 1);
+    startSession("bill");
     navigate("/bills/new", { replace: true, state: { fresh: true } });
   };
 

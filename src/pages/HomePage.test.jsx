@@ -49,4 +49,10 @@ describe("HomePage", () => {
     expect(close).toHaveBeenCalled();
     close.mockRestore();
   });
+
+  it("alt + i opens insights", async () => {
+    renderHome();
+    await userEvent.setup().keyboard("{Alt>}i{/Alt}");
+    expect(screen.getByText("Opened page")).toBeTruthy();
+  });
 });

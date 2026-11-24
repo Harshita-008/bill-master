@@ -1,3 +1,4 @@
+import { addMissingToLog, listActivity, openActivityLog, recordActivity } from "./activity-log.js";
 import { addMissingColumn, cleanNumber, cleanText, openDatabase } from "./open.js";
 
 // bills keep their own copy of item name, rate and per, so they do not need the items file
@@ -42,7 +43,21 @@ export function openBillsDb(file) {
   }
   addMissingColumn(db, "bills", "previous_amount", "REAL NOT NULL DEFAULT 0");
   addMissingColumn(db, "bill_items", "unit", "TEXT NOT NULL DEFAULT ''");
+  openActivityLog(db, "bill_log");
+  addMissingToLog(db, "bill_log", `
+    SELECT 'saved-' || id, id, replace(created_at, ' ', 'T') || 'Z',
+      (SELECT COUNT(*) FROM bill_items WHERE bill_id = bills.id), grand_total, 1
+    FROM bills
+  `);
   return db;
+}
+
+export function recordBillActivity(entry) {
+  return recordActivity(db, "bill_log", entry);
+}
+
+export function listBillActivity() {
+  return listActivity(db, "bill_log");
 }
 
 export function closeBillsDb() {

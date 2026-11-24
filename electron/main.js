@@ -9,26 +9,31 @@ import {
   migrateLegacyDatabase,
 } from "./data-storage.js";
 import { hasAnyDatabase } from "./db/files.js";
+import { exportInsights } from "./export-insights.js";
 import { printPage } from "./print-job.js";
 import { loadPrinterPapers, reloadPrinterPapers } from "./printer-paper.js";
 import {
   addItems,
   addLedger,
+  closeDatabase,
   deleteBill,
+  deleteChallan,
   deleteItem,
   deleteItems,
   deleteLedger,
   deleteLedgers,
-  deleteChallan,
   getBill,
   getBills,
-  getItems,
-  getLedgers,
   getChallan,
   getChallans,
+  getItems,
+  getLedgers,
   importItems,
-  closeDatabase,
   initializeDatabase,
+  listBillActivity,
+  listChallanActivity,
+  recordBillActivity,
+  recordChallanActivity,
   saveBill,
   saveChallan,
   updateItem,
@@ -85,6 +90,13 @@ function registerHandlers() {
   });
   ipcMain.handle("print", (event, options) => printPage(event.sender, options));
   ipcMain.handle("app:quit", () => app.quit());
+  ipcMain.handle("activity:record", (_, kind, entry) => (
+    kind === "challan" ? recordChallanActivity(entry) : recordBillActivity(entry)
+  ));
+  ipcMain.handle("activity:list", (_, kind) => (
+    kind === "challan" ? listChallanActivity() : listBillActivity()
+  ));
+  ipcMain.handle("insights:export", (event) => exportInsights(event.sender));
 }
 
 function createWindow() {

@@ -237,6 +237,27 @@ const browserFallback = {
   async quitApp() {
     window.close();
   },
+  async recordActivity(kind, entry) {
+    const key = `billmaster.preview.activity.${kind}`;
+    const rows = read(key);
+    const action = { printed: entry.action === "print", saved: entry.action === "save" };
+    const existing = rows.find((row) => row.session === entry.session);
+    if (existing) {
+      existing.printed = existing.printed || action.printed;
+      existing.saved = existing.saved || action.saved;
+    } else {
+      rows.push({ session: entry.session, madeAt: new Date().toISOString(), items: entry.items, total: entry.total, seconds: entry.seconds ?? null, ...action });
+    }
+    write(key, rows);
+    return { added: !existing };
+  },
+  async listActivity(kind) {
+    return read(`billmaster.preview.activity.${kind}`);
+  },
+  async exportInsights() {
+    window.print();
+    return { saved: true };
+  },
 };
 
 export const api = window.electronAPI || browserFallback;

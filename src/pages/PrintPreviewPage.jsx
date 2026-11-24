@@ -14,6 +14,7 @@ import {
   rememberPrinter,
 } from "../utils/printerCache";
 import { BILL_COPIES_KEY, readCopies, saveCopies } from "../utils/savedCopies";
+import { recordActivity } from "../utils/recordActivity";
 
 export default function PrintPreviewPage() {
   const navigate = useNavigate();
@@ -122,6 +123,7 @@ export default function PrintPreviewPage() {
         ? "Printed using the Windows print settings window."
         : result.seconds != null ? `Print job sent in ${result.seconds} s.` : "Print job sent successfully."
       : result.failureReason || "Printing was cancelled.");
+    if (result.success) recordActivity("bill", "print", { items: bill.items?.length, total: bill.grandTotal, recordId: bill.id });
     if (result.success && manualDuplexJob) setStatus("Front sides sent successfully.");
     printingRef.current = false;
     if (result.success && manualDuplexJob) setAwaitingFlip(true);

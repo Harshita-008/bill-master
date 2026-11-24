@@ -7,10 +7,10 @@ import { ITEMS_TABLES, closeItemsDb, openItemsDb } from "./db/items-db.js";
 import { splitOldDatabase } from "./db/split-old-database.js";
 
 export {
-  clearBills, deleteBill, getBill, getBills, saveBill,
+  clearBills, deleteBill, getBill, getBills, listBillActivity, recordBillActivity, saveBill,
 } from "./db/bills-db.js";
 export {
-  deleteChallan, getChallan, getChallans, saveChallan,
+  deleteChallan, getChallan, getChallans, listChallanActivity, recordChallanActivity, saveChallan,
 } from "./db/challans-db.js";
 export {
   addItems, addLedger, deleteItem, deleteItems, deleteLedger, deleteLedgers, getItemCount,

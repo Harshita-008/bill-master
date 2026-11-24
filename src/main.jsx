@@ -14,6 +14,7 @@ import "./styles/forms.css";
 import "./styles/voucher.css";
 import "./styles/print.css";
 import "./styles/challan.css";
+import "./styles/insights.css";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

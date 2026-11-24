@@ -4,10 +4,13 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import ChallanForm from "../components/challan/ChallanForm";
 import ExitDialog from "../components/ui/ExitDialog";
 import PageHeader from "../components/ui/PageHeader";
+import useActivityTimer from "../hooks/useActivityTimer";
 import useConfirmExit from "../hooks/useConfirmExit";
 import { api } from "../services/api";
 import { hydrateChallan } from "../utils/challan";
+import { beginEditorSession, startSession } from "../utils/activitySession";
 import { clearEditorDrafts } from "../utils/editorDrafts";
+import { recordActivity } from "../utils/recordActivity";
 
 const DRAFT_KEY = "billmaster.challanEditorDraft";
 const PRINT_KEY = "billmaster.challanPrintDraft";
@@ -37,6 +40,9 @@ export default function ChallanEditorPage() {
   const [suggestionHost, setSuggestionHost] = useState(null);
   // esc on an empty box asks before leaving, like the bill editor
   const exit = useConfirmExit();
+  // runs once when the editor opens, a new challan starts being timed
+  useState(() => beginEditorSession("challan", Boolean(id), location.state?.fromPreview));
+  useActivityTimer("challan");
   const leaveToHome = useCallback(() => {
     clearEditorDrafts(location.pathname);
     navigate("/", { replace: true });
@@ -78,6 +84,7 @@ export default function ChallanEditorPage() {
           ? Number(location.state.savedId)
           : undefined;
       const result = await api.saveChallan({ ...prepared, id: existingId });
+      recordActivity("challan", "save", { recordId: result.challanId });
       const saved = {
         ...prepared,
         id: result.challanId,
@@ -101,6 +108,7 @@ export default function ChallanEditorPage() {
     setDraft(null);
     setError("");
     setFormVersion((version) => version + 1);
+    startSession("challan");
     navigate("/challans/new", { replace: true, state: { fresh: true } });
   };
 

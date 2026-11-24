@@ -13,6 +13,9 @@ user's own computer.
 - Multi-sheet A6 and A4 bill printing with copy-count and guided front/back support
 - Create, save, edit, browse, and print challans
 - Import item names from every populated worksheet and column in Excel files
+- Insights page (Alt+I on the home page) with bills and challans made per day,
+  week, month, and year, average time per bill, days used, and total billed,
+  exportable as a PDF report; bills keep counting even after they are deleted
 - Light and dark themes
 - Fully offline operation after installation
 

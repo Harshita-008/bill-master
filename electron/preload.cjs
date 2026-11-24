@@ -24,4 +24,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   getPrinters: (force = false) => ipcRenderer.invoke("printers:list", force),
   print: (options) => ipcRenderer.invoke("print", options),
   quitApp: () => ipcRenderer.invoke("app:quit"),
+  recordActivity: (kind, entry) => ipcRenderer.invoke("activity:record", kind, entry),
+  listActivity: (kind) => ipcRenderer.invoke("activity:list", kind),
+  exportInsights: () => ipcRenderer.invoke("insights:export"),
 });

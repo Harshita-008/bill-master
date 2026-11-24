@@ -13,6 +13,7 @@ import ChallanEditorPage from "./pages/ChallanEditorPage";
 import ChallanHistoryPage from "./pages/ChallanHistoryPage";
 import ChallanDetailPage from "./pages/ChallanDetailPage";
 import ChallanPrintPreviewPage from "./pages/ChallanPrintPreviewPage";
+import InsightsPage from "./pages/InsightsPage";
 
 export default function App() {
   return (
@@ -34,6 +35,7 @@ export default function App() {
             <Route path="/challans/:id" element={<ChallanDetailPage />} />
             <Route path="/challans/:id/edit" element={<ChallanEditorPage />} />
             <Route path="/challan-print" element={<ChallanPrintPreviewPage />} />
+            <Route path="/insights" element={<InsightsPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Routes>

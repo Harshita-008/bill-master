@@ -1,3 +1,4 @@
+import { addMissingToLog, listActivity, openActivityLog, recordActivity } from "./activity-log.js";
 import { cleanText, openDatabase } from "./open.js";
 
 export const CHALLANS_TABLES = ["challans"];
@@ -20,7 +21,20 @@ let db;
 
 export function openChallansDb(file) {
   db = openDatabase(file, SCHEMA);
+  openActivityLog(db, "challan_log");
+  addMissingToLog(db, "challan_log", `
+    SELECT 'saved-' || id, id, replace(created_at, ' ', 'T') || 'Z', 0, 0, 1
+    FROM challans
+  `);
   return db;
+}
+
+export function recordChallanActivity(entry) {
+  return recordActivity(db, "challan_log", entry);
+}
+
+export function listChallanActivity() {
+  return listActivity(db, "challan_log");
 }
 
 export function closeChallansDb() {
